@@ -44,7 +44,8 @@ int main()
 {
     //Declare an object
     Person person1;
-    Place place1;
+    Place places[9];
+
 
     //accessing data member
     person1.identifier="Toga";
@@ -59,11 +60,59 @@ int main()
     person1.vaccinated=false;
     person1.age=18;
 
-    place1.identifier="Closet";
-    place1.xposition=1;
-    place1.yposition=1;
-    place1.Virus_level=0;
-    place1.Occupied=true;
+    places[1].identifier="Closet1";
+    places[1].xposition=1;
+    places[1].yposition=1;
+    places[1].Virus_level=0;
+    places[1].Occupied=true;
+
+    places[2].identifier="Closet2";
+    places[2].xposition=2;
+    places[2].yposition=1;
+    places[2].Virus_level=0;
+    places[2].Occupied=false;
+
+    places[3].identifier="Closet3";
+    places[3].xposition=3;
+    places[3].yposition=1;
+    places[3].Virus_level=0;
+    places[3].Occupied=false;
+
+    places[4].identifier="Closet4";
+    places[4].xposition=1;
+    places[4].yposition=2;
+    places[4].Virus_level=0;
+    places[4].Occupied=false;
+
+    places[5].identifier="Closet5";
+    places[5].xposition=2;
+    places[5].yposition=2;
+    places[5].Virus_level=0;
+    places[5].Occupied=false;
+
+    places[6].identifier="Closet6";
+    places[6].xposition=3;
+    places[6].yposition=2;
+    places[6].Virus_level=0;
+    places[6].Occupied=false;
+
+    places[7].identifier="Closet7";
+    places[7].xposition=1;
+    places[7].yposition=3;
+    places[7].Virus_level=0;
+    places[7].Occupied=false;
+
+    places[8].identifier="Closet8";
+    places[8].xposition=2;
+    places[8].yposition=3;
+    places[8].Virus_level=0;
+    places[8].Occupied=false;
+
+    places[9].identifier="Closet9";
+    places[9].xposition=3;
+    places[9].yposition=3;
+    places[9].Virus_level=0;
+    places[9].Occupied=false;
 
     //accessing member function
     person1.printname();
