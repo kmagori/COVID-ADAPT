@@ -58,7 +58,7 @@ int main()
     person1.recovered=false;
     person1.masked=false;
     person1.vaccinated=false;
-    person1.age=18;
+    person1.age=16;
 
     places[1].identifier="Closet1";
     places[1].xposition=1;
