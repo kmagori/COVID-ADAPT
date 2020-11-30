@@ -96,7 +96,7 @@ int main()
 {
     //Declare an object
     srand (time(NULL));
-    Person person1;
+    Person person1,person2;
     Place places[9];
     double simtime;
     int max_time=1000;
@@ -104,6 +104,7 @@ int main()
     ofstream record;
     record.open("record.txt");
     
+    record << "time,Toga_position,Virus_Closet1,Virus_Closet2,Virus_Closet3,Virus_Closet4,Virus_Closet5,Virus_Closet6,Virus_Closet7,Virus_Closet8,Virus_Closet9";
 
     //accessing data member
     person1.identifier="Toga";
@@ -117,6 +118,19 @@ int main()
     person1.masked=false;
     person1.vaccinated=false;
     person1.age=16;
+
+    person2.identifier="Eri";
+    person2.xposition=3;
+    person2.yposition=3;
+    person2.susceptible=true;
+    person2.exposed=false;
+    person2.infected=false;
+    person2.infectious=false;
+    person2.recovered=false;
+    person2.masked=false;
+    person2.vaccinated=false;
+    person2.age=7;
+
 
     places[0].identifier="Closet1";
     places[0].xposition=1;
@@ -170,7 +184,7 @@ int main()
     places[8].xposition=3;
     places[8].yposition=3;
     places[8].Virus_level=0;
-    places[8].Occupied=false;
+    places[8].Occupied=true;
 
     //accessing member function
     //person1.printname();
@@ -194,7 +208,7 @@ int main()
     } while ((places[i].xposition!=person1.xposition)||(places[i].yposition!=person1.yposition));
     PlaceBefore=i;
 
-    record << "\n" << person1.identifier << " was at " << places[PlaceBefore].identifier << " which is at " << places[PlaceBefore].xposition << " and " << places[PlaceBefore].yposition;
+    //record << "\n" << person1.identifier << " was at " << places[PlaceBefore].identifier << " which is at " << places[PlaceBefore].xposition << " and " << places[PlaceBefore].yposition;
 
     person1.xposition=newx;
     person1.yposition=newy;
@@ -208,7 +222,7 @@ int main()
     PlaceAfter=i;
 
 
-    record << "\n" << person1.identifier << " is now at " << places[PlaceAfter].identifier << " which is at " << person1.xposition << " and " << person1.yposition;
+    //record << "\n" << person1.identifier << " is now at " << places[PlaceAfter].identifier << " which is at " << person1.xposition << " and " << person1.yposition;
     //std::printf("\nThe new position is %d and %d",person1.xposition,person1.yposition);   
 
     //change occupied status
@@ -219,14 +233,18 @@ int main()
     int v1;
     v1=rand() %100;
     simtime=simtime+v1;
-    record << "\nThe time is " << simtime;
+    //record << "\nThe time is " << simtime;
  
     //increase virus level by some value in occupied place
     if (person1.infectious==true) places[PlaceBefore].Virus_level=places[PlaceBefore].Virus_level+v1;
-    cout << "\nVirus level: " << places[PlaceBefore].Virus_level << " at place " << places[PlaceBefore].identifier;
+    //cout << "\nVirus level: " << places[PlaceBefore].Virus_level << " at place " << places[PlaceBefore].identifier;
+
+     record << "\n" << simtime << "," << places[PlaceAfter].identifier << "," << places[0].Virus_level << "," << places[1].Virus_level << "," << places[2].Virus_level << "," << places[3].Virus_level << "," << places[4].Virus_level << "," << places[5].Virus_level << "," << places[6].Virus_level << "," << places[7].Virus_level << "," << places[8].Virus_level;
+
     }
     while(simtime < max_time);
 
+   
     record.close();
 
     return 0;
