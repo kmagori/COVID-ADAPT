@@ -34,13 +34,47 @@ class Person
     void move(int* newx, int* newy)
     {
         int v1;
-        srand (time(NULL));
         //int newx, newy;
         v1 = rand() % 100;
+        if (xposition==1&yposition==1) 
+        {
+           if (v1<50) {*newx=xposition+1;*newy=yposition;} else {*newx=xposition; *newy=yposition+1;}
+        }
+        if (xposition==1&yposition==3) 
+        {
+           if (v1<50) {*newx=xposition+1;*newy=yposition;} else {*newx=xposition; *newy=yposition-1;}
+        }
+        if (xposition==3&yposition==1) 
+        {
+           if (v1<50) {*newx=xposition-1;*newy=yposition;} else {*newx=xposition; *newy=yposition+1;}
+        }
+        if (xposition==3&yposition==3) 
+        {
+           if (v1<50) {*newx=xposition-1;*newy=yposition;} else {*newx=xposition; *newy=yposition-1;}
+        }
+        if (xposition==1&yposition!=1&yposition!=3) 
+        {
+           if (v1<33) {*newx=xposition;*newy=yposition-1;} else if (v1<66) {*newx=xposition+1; *newy=yposition;} else {*newx=xposition;*newy=yposition+1;}
+        }
+        if (xposition==3&yposition!=1&yposition!=3) 
+        {
+           if (v1<33) {*newx=xposition;*newy=yposition-1;} else if (v1<66) {*newx=xposition-1; *newy=yposition;} else {*newx=xposition;*newy=yposition+1;}
+        }
+        if (yposition==1&xposition!=1&xposition!=3) 
+        {
+           if (v1<33) {*newx=xposition-1;*newy=yposition;} else if (v1<66) {*newx=xposition; *newy=yposition+1;} else {*newx=xposition+1;*newy=yposition;}
+        }
+        if (yposition==3&xposition!=1&xposition!=3) 
+        {
+           if (v1<33) {*newx=xposition-1;*newy=yposition;} else if (v1<66) {*newx=xposition; *newy=yposition-1;} else {*newx=xposition+1;*newy=yposition;}
+        }
+        if (xposition!=1&xposition!=3&yposition!=1&yposition!=3)
+        {
             if (v1<25) {*newx=xposition+1;*newy=yposition;}
             if (v1>25&v1<50) {*newx=xposition;*newy=yposition+1;}
             if (v1>50&v1<75) {*newx=xposition-1;*newy=yposition;}
             if (v1>75) {*newx=xposition;*newy=yposition-1;}
+        }
         //return newx,newy;
     }
 };
@@ -61,21 +95,24 @@ class Place
 int main()
 {
     //Declare an object
+    srand (time(NULL));
     Person person1;
     Place places[9];
-    double time;
+    double simtime;
     int max_time=1000;
+    int PlaceBefore,PlaceAfter,i;
     ofstream record;
     record.open("record.txt");
+    
 
     //accessing data member
     person1.identifier="Toga";
-    person1.xposition=2;
-    person1.yposition=2;
-    person1.susceptible=true;
+    person1.xposition=1;
+    person1.yposition=1;
+    person1.susceptible=false;
     person1.exposed=false;
     person1.infected=false;
-    person1.infectious=false;
+    person1.infectious=true;
     person1.recovered=false;
     person1.masked=false;
     person1.vaccinated=false;
@@ -85,7 +122,7 @@ int main()
     places[0].xposition=1;
     places[0].yposition=1;
     places[0].Virus_level=0;
-    places[0].Occupied=false;
+    places[0].Occupied=true;
 
     places[1].identifier="Closet2";
     places[1].xposition=2;
@@ -109,7 +146,7 @@ int main()
     places[4].xposition=2;
     places[4].yposition=2;
     places[4].Virus_level=0;
-    places[4].Occupied=true;
+    places[4].Occupied=false;
 
     places[5].identifier="Closet6";
     places[5].xposition=3;
@@ -145,13 +182,11 @@ int main()
     do
     {
  
-    do
-    {
-        person1.move(&newx,&newy);
-    } while (newx>3||newx<1||newy>3||newy<1);
+    //movement
+    person1.move(&newx,&newy);
     
     //find the place where the person was before
-    int PlaceBefore,PlaceAfter,i;
+    
     i=-1;
     do
     {
@@ -183,11 +218,14 @@ int main()
     //elapse a random amount of time
     int v1;
     v1=rand() %100;
-    time=time+v1;
-    record << "\nThe time is " << time;
+    simtime=simtime+v1;
+    record << "\nThe time is " << simtime;
  
+    //increase virus level by some value in occupied place
+    if (person1.infectious==true) places[PlaceBefore].Virus_level=places[PlaceBefore].Virus_level+v1;
+    cout << "\nVirus level: " << places[PlaceBefore].Virus_level << " at place " << places[PlaceBefore].identifier;
     }
-    while(time<max_time);
+    while(simtime < max_time);
 
     record.close();
 
