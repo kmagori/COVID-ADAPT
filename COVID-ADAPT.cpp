@@ -1,5 +1,9 @@
 // COVID-ADAPT
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <fstream>
 using namespace std;
 
 class Person
@@ -26,6 +30,19 @@ class Person
         // cout << "Person name is:" << identifier << " at xposition " << xposition << " and yposition " << yposition << " who is susceptible " << susceptible << " or exposed " << exposed << " or infected " << infected << " or infectious " << infectious << " or recovered " << recovered << " and is masked " << masked << " and is vaccinated " << vaccinated;
         cout << "Person name is:" << identifier << " at xposition " << xposition << " and yposition " << yposition << " who is susceptible " << susceptible << " or exposed " << exposed << " or infected " << infected << " or infectious " << infectious << " or recovered " << recovered << " and is masked " << masked << " and is vaccinated " << vaccinated << " and is age " << age;
     }
+
+    void move(int* newx, int* newy)
+    {
+        int v1;
+        srand (time(NULL));
+        //int newx, newy;
+        v1 = rand() % 100;
+            if (v1<25) {*newx=xposition+1;*newy=yposition;}
+            if (v1>25&v1<50) {*newx=xposition;*newy=yposition+1;}
+            if (v1>50&v1<75) {*newx=xposition-1;*newy=yposition;}
+            if (v1>75) {*newx=xposition;*newy=yposition-1;}
+        //return newx,newy;
+    }
 };
 
 class Place
@@ -46,12 +63,15 @@ int main()
     //Declare an object
     Person person1;
     Place places[9];
-
+    double time;
+    int max_time=1000;
+    ofstream record;
+    record.open("record.txt");
 
     //accessing data member
     person1.identifier="Toga";
-    person1.xposition=1;
-    person1.yposition=1;
+    person1.xposition=2;
+    person1.yposition=2;
     person1.susceptible=true;
     person1.exposed=false;
     person1.infected=false;
@@ -65,7 +85,7 @@ int main()
     places[0].xposition=1;
     places[0].yposition=1;
     places[0].Virus_level=0;
-    places[0].Occupied=true;
+    places[0].Occupied=false;
 
     places[1].identifier="Closet2";
     places[1].xposition=2;
@@ -89,7 +109,7 @@ int main()
     places[4].xposition=2;
     places[4].yposition=2;
     places[4].Virus_level=0;
-    places[4].Occupied=false;
+    places[4].Occupied=true;
 
     places[5].identifier="Closet6";
     places[5].xposition=3;
@@ -116,7 +136,60 @@ int main()
     places[8].Occupied=false;
 
     //accessing member function
-    person1.printname();
+    //person1.printname();
+
+    //run the simulation until a specified time
+
+    int newx,newy;
+
+    do
+    {
+ 
+    do
+    {
+        person1.move(&newx,&newy);
+    } while (newx>3||newx<1||newy>3||newy<1);
+    
+    //find the place where the person was before
+    int PlaceBefore,PlaceAfter,i;
+    i=-1;
+    do
+    {
+        i++;
+    } while ((places[i].xposition!=person1.xposition)||(places[i].yposition!=person1.yposition));
+    PlaceBefore=i;
+
+    record << "\n" << person1.identifier << " was at " << places[PlaceBefore].identifier << " which is at " << places[PlaceBefore].xposition << " and " << places[PlaceBefore].yposition;
+
+    person1.xposition=newx;
+    person1.yposition=newy;
+
+    //let's see where he-she is now
+    i=-1;
+    do
+    {
+        i++;
+    } while ((places[i].xposition!=person1.xposition)||(places[i].yposition!=person1.yposition));
+    PlaceAfter=i;
+
+
+    record << "\n" << person1.identifier << " is now at " << places[PlaceAfter].identifier << " which is at " << person1.xposition << " and " << person1.yposition;
+    //std::printf("\nThe new position is %d and %d",person1.xposition,person1.yposition);   
+
+    //change occupied status
+    places[PlaceBefore].Occupied=false;
+    places[PlaceAfter].Occupied=true;
+
+    //elapse a random amount of time
+    int v1;
+    v1=rand() %100;
+    time=time+v1;
+    record << "\nThe time is " << time;
+ 
+    }
+    while(time<max_time);
+
+    record.close();
 
     return 0;
 }
