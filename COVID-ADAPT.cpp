@@ -90,46 +90,47 @@ class Place
     int yposition;
     double Virus_level;
     bool Occupied;
+    int person_in_there;
 };
 
 int main()
 {
     //Declare an object
     srand (time(NULL));
-    Person person1,person2;
+    Person person[2];
     Place places[9];
     double simtime;
     int max_time=1000;
-    int PlaceBefore,PlaceAfter,i;
+    int PlaceBefore,PlaceAfter,i,TogaPlace,EriPlace;
     ofstream record;
-    record.open("record.txt");
+    record.open("record.csv");
     
-    record << "time,Toga_position,Virus_Closet1,Virus_Closet2,Virus_Closet3,Virus_Closet4,Virus_Closet5,Virus_Closet6,Virus_Closet7,Virus_Closet8,Virus_Closet9";
+    record << "time,Toga_position,Eri_position,Virus_Closet1,Virus_Closet2,Virus_Closet3,Virus_Closet4,Virus_Closet5,Virus_Closet6,Virus_Closet7,Virus_Closet8,Virus_Closet9";
 
     //accessing data member
-    person1.identifier="Toga";
-    person1.xposition=1;
-    person1.yposition=1;
-    person1.susceptible=false;
-    person1.exposed=false;
-    person1.infected=false;
-    person1.infectious=true;
-    person1.recovered=false;
-    person1.masked=false;
-    person1.vaccinated=false;
-    person1.age=16;
-
-    person2.identifier="Eri";
-    person2.xposition=3;
-    person2.yposition=3;
-    person2.susceptible=true;
-    person2.exposed=false;
-    person2.infected=false;
-    person2.infectious=false;
-    person2.recovered=false;
-    person2.masked=false;
-    person2.vaccinated=false;
-    person2.age=7;
+    person[0].identifier="Toga";
+    person[0].xposition=1;
+    person[0].yposition=1;
+    person[0].susceptible=false;
+    person[0].exposed=false;
+    person[0].infected=false;
+    person[0].infectious=true;
+    person[0].recovered=false;
+    person[0].masked=false;
+    person[0].vaccinated=false;
+    person[0].age=16;
+    
+    person[1].identifier="Eri";
+    person[1].xposition=3;
+    person[1].yposition=3;
+    person[1].susceptible=true;
+    person[1].exposed=false;
+    person[1].infected=false;
+    person[1].infectious=true;
+    person[1].recovered=false;
+    person[1].masked=false;
+    person[1].vaccinated=false;
+    person[1].age=7;
 
 
     places[0].identifier="Closet1";
@@ -137,6 +138,7 @@ int main()
     places[0].yposition=1;
     places[0].Virus_level=0;
     places[0].Occupied=true;
+    places[0].person_in_there=0;
 
     places[1].identifier="Closet2";
     places[1].xposition=2;
@@ -185,19 +187,26 @@ int main()
     places[8].yposition=3;
     places[8].Virus_level=0;
     places[8].Occupied=true;
+    places[8].person_in_there=1;
 
     //accessing member function
     //person1.printname();
 
     //run the simulation until a specified time
 
-    int newx,newy;
+    int newx,newy,v1,current_person;
 
     do
     {
  
     //movement
-    person1.move(&newx,&newy);
+    //lets see who will move
+    v1=rand() %100;
+    if (v1<50) current_person=0; else current_person=1;
+    
+    person[current_person].move(&newx,&newy);
+    //newx=person[current_person].xposition;
+    //newy=person[current_person].yposition;
     
     //find the place where the person was before
     
@@ -205,41 +214,70 @@ int main()
     do
     {
         i++;
-    } while ((places[i].xposition!=person1.xposition)||(places[i].yposition!=person1.yposition));
+    } while ((places[i].xposition!=person[current_person].xposition)||(places[i].yposition!=person[current_person].yposition));
     PlaceBefore=i;
 
     //record << "\n" << person1.identifier << " was at " << places[PlaceBefore].identifier << " which is at " << places[PlaceBefore].xposition << " and " << places[PlaceBefore].yposition;
 
-    person1.xposition=newx;
-    person1.yposition=newy;
+    //check if the new place is occupied: if it is, stay where they are
 
     //let's see where he-she is now
     i=-1;
     do
     {
         i++;
-    } while ((places[i].xposition!=person1.xposition)||(places[i].yposition!=person1.yposition));
+    } while ((places[i].xposition!=newx)||(places[i].yposition!=newy));
     PlaceAfter=i;
 
+    if (places[PlaceAfter].Occupied==true) {newx=person[current_person].xposition; newy=person[current_person].yposition;PlaceAfter=PlaceBefore;}
+
+    person[current_person].xposition=newx;
+    person[current_person].yposition=newy;
 
     //record << "\n" << person1.identifier << " is now at " << places[PlaceAfter].identifier << " which is at " << person1.xposition << " and " << person1.yposition;
     //std::printf("\nThe new position is %d and %d",person1.xposition,person1.yposition);   
 
-    //change occupied status
-    places[PlaceBefore].Occupied=false;
-    places[PlaceAfter].Occupied=true;
-
     //elapse a random amount of time
-    int v1;
+    
     v1=rand() %100;
     simtime=simtime+v1;
     //record << "\nThe time is " << simtime;
  
-    //increase virus level by some value in occupied place
-    if (person1.infectious==true) places[PlaceBefore].Virus_level=places[PlaceBefore].Virus_level+v1;
+    //increase virus level by some value for all occupied places
+    for (i=0; i<=9; i++)
+    {    
+    if (places[i].Occupied)
+        {
+                if (person[places[i].person_in_there].infectious==true) places[i].Virus_level=places[i].Virus_level+v1;
+        }
+    }
+
+    //change occupied status
+    places[PlaceBefore].Occupied=false;
+    places[PlaceBefore].person_in_there=-9999;
+    places[PlaceAfter].Occupied=true;
+    places[PlaceAfter].person_in_there=current_person;
+
+    
     //cout << "\nVirus level: " << places[PlaceBefore].Virus_level << " at place " << places[PlaceBefore].identifier;
 
-     record << "\n" << simtime << "," << places[PlaceAfter].identifier << "," << places[0].Virus_level << "," << places[1].Virus_level << "," << places[2].Virus_level << "," << places[3].Virus_level << "," << places[4].Virus_level << "," << places[5].Virus_level << "," << places[6].Virus_level << "," << places[7].Virus_level << "," << places[8].Virus_level;
+    //check where is Toga is
+    i=-1;
+    do
+    {
+        i++;
+    } while ((places[i].xposition!=person[0].xposition)||(places[i].yposition!=person[0].yposition));
+    TogaPlace=i;
+
+    //check where is Eri
+    i=-1;
+    do
+    {
+        i++;
+    } while ((places[i].xposition!=person[1].xposition)||(places[i].yposition!=person[1].yposition));
+    EriPlace=i;
+
+    record << "\n" << simtime << "," << places[TogaPlace].identifier << "," << places[EriPlace].identifier << "," << places[0].Virus_level << "," << places[1].Virus_level << "," << places[2].Virus_level << "," << places[3].Virus_level << "," << places[4].Virus_level << "," << places[5].Virus_level << "," << places[6].Virus_level << "," << places[7].Virus_level << "," << places[8].Virus_level;
 
     }
     while(simtime < max_time);
