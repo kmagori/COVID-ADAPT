@@ -23,6 +23,7 @@ class Person
     bool masked;
     bool vaccinated;
     int age;
+    int location;
 
     //Member functions
     void printname()
@@ -31,50 +32,16 @@ class Person
         cout << "Person name is:" << identifier << " at xposition " << xposition << " and yposition " << yposition << " who is susceptible " << susceptible << " or exposed " << exposed << " or infected " << infected << " or infectious " << infectious << " or recovered " << recovered << " and is masked " << masked << " and is vaccinated " << vaccinated << " and is age " << age;
     }
 
-    void move(int* newx, int* newy)
+    void move(double west_prob, double east_prob, double north_prob, double south_prob, int* newx, int* newy)
     {
         int v1;
         //int newx, newy;
         v1 = rand() % 100;
-        if (xposition==1&yposition==1) 
-        {
-           if (v1<50) {*newx=xposition+1;*newy=yposition;} else {*newx=xposition; *newy=yposition+1;}
-        }
-        if (xposition==1&yposition==3) 
-        {
-           if (v1<50) {*newx=xposition+1;*newy=yposition;} else {*newx=xposition; *newy=yposition-1;}
-        }
-        if (xposition==3&yposition==1) 
-        {
-           if (v1<50) {*newx=xposition-1;*newy=yposition;} else {*newx=xposition; *newy=yposition+1;}
-        }
-        if (xposition==3&yposition==3) 
-        {
-           if (v1<50) {*newx=xposition-1;*newy=yposition;} else {*newx=xposition; *newy=yposition-1;}
-        }
-        if (xposition==1&yposition!=1&yposition!=3) 
-        {
-           if (v1<33) {*newx=xposition;*newy=yposition-1;} else if (v1<66) {*newx=xposition+1; *newy=yposition;} else {*newx=xposition;*newy=yposition+1;}
-        }
-        if (xposition==3&yposition!=1&yposition!=3) 
-        {
-           if (v1<33) {*newx=xposition;*newy=yposition-1;} else if (v1<66) {*newx=xposition-1; *newy=yposition;} else {*newx=xposition;*newy=yposition+1;}
-        }
-        if (yposition==1&xposition!=1&xposition!=3) 
-        {
-           if (v1<33) {*newx=xposition-1;*newy=yposition;} else if (v1<66) {*newx=xposition; *newy=yposition+1;} else {*newx=xposition+1;*newy=yposition;}
-        }
-        if (yposition==3&xposition!=1&xposition!=3) 
-        {
-           if (v1<33) {*newx=xposition-1;*newy=yposition;} else if (v1<66) {*newx=xposition; *newy=yposition-1;} else {*newx=xposition+1;*newy=yposition;}
-        }
-        if (xposition!=1&xposition!=3&yposition!=1&yposition!=3)
-        {
-            if (v1<25) {*newx=xposition+1;*newy=yposition;}
-            if (v1>25&v1<50) {*newx=xposition;*newy=yposition+1;}
-            if (v1>50&v1<75) {*newx=xposition-1;*newy=yposition;}
-            if (v1>75) {*newx=xposition;*newy=yposition-1;}
-        }
+        if (v1<west_prob) {*newx=xposition-1;*newy=yposition;} 
+        else if (v1<(west_prob+north_prob)) {*newx=xposition;*newy=yposition-1;}
+        else if (v1<(west_prob+north_prob+east_prob)) {*newx=xposition+1;*newy=yposition;}
+        else {*newx=xposition;*newy=yposition+1;}
+        
         //return newx,newy;
     }
 };
@@ -91,6 +58,10 @@ class Place
     double Virus_level;
     bool Occupied;
     int person_in_there;
+    double west_prob;
+    double north_prob;
+    double east_prob;
+    double south_prob;
 };
 
 int main()
@@ -106,11 +77,12 @@ int main()
     record.open("record.csv");
     
     record << "time,Toga_position,Eri_position,Virus_Closet1,Virus_Closet2,Virus_Closet3,Virus_Closet4,Virus_Closet5,Virus_Closet6,Virus_Closet7,Virus_Closet8,Virus_Closet9";
-
+    record.close();
     //accessing data member
     person[0].identifier="Toga";
     person[0].xposition=1;
     person[0].yposition=1;
+    person[0].location=0;
     person[0].susceptible=false;
     person[0].exposed=false;
     person[0].infected=false;
@@ -123,7 +95,8 @@ int main()
     person[1].identifier="Eri";
     person[1].xposition=3;
     person[1].yposition=3;
-    person[1].susceptible=true;
+    person[1].location=8;
+    person[1].susceptible=false;
     person[1].exposed=false;
     person[1].infected=false;
     person[1].infectious=true;
@@ -132,62 +105,83 @@ int main()
     person[1].vaccinated=false;
     person[1].age=7;
 
+    for (int i=0;i<3;i++)
+    {
+        for (int j=0;j<3;j++)
+        {
+            places[3*i+j].identifier="Closet" + to_string(3*i+j+1);
+            places[3*i+j].xposition=j+1;
+            places[3*i+j].yposition=i+1;
+            places[3*i+j].Virus_level=0;
+            places[3*i+j].Occupied=false;
+            places[3*i+j].person_in_there=-9999;
+            places[3*i+j].west_prob=25;
+            places[3*i+j].east_prob=25;
+            places[3*i+j].north_prob=25;
+            places[3*i+j].south_prob=25;
+            if (i==0&&j==0)
+                {
+                    places[3*i+j].west_prob=0;
+                    places[3*i+j].east_prob=50;
+                    places[3*i+j].north_prob=0;
+                    places[3*i+j].south_prob=50;
+                }
+            if (i==2&&j==0)
+                {
+                    places[3*i+j].west_prob=0;
+                    places[3*i+j].east_prob=50;
+                    places[3*i+j].north_prob=50;
+                    places[3*i+j].south_prob=0;
+                }
+            if (i==0&&j==2)
+                {
+                    places[3*i+j].west_prob=50;
+                    places[3*i+j].east_prob=0;
+                    places[3*i+j].north_prob=0;
+                    places[3*i+j].south_prob=50;
+                }
+            if (i==2&&j==2)
+                {
+                    places[3*i+j].west_prob=50;
+                    places[3*i+j].east_prob=0;
+                    places[3*i+j].north_prob=50;
+                    places[3*i+j].south_prob=0;
+                }
+            if (i==0&&j!=0&&j!=2)
+                {
+                    places[3*i+j].west_prob=1.0/3*100;
+                    places[3*i+j].east_prob=1.0/3*100;
+                    places[3*i+j].north_prob=0;
+                    places[3*i+j].south_prob=1.0/3*100;
+                }
+            if (i!=0&&i!=2&&j==0)
+                {
+                    places[3*i+j].west_prob=0;
+                    places[3*i+j].east_prob=1.0/3*100;
+                    places[3*i+j].north_prob=1.0/3*100;
+                    places[3*i+j].south_prob=1.0/3*100;
+                }
+            if (i==2&&j!=0&&j!=2)
+                {
+                    places[3*i+j].west_prob=1.0/3*100;
+                    places[3*i+j].east_prob=1.0/3*100;
+                    places[3*i+j].north_prob=1.0/3*100;
+                    places[3*i+j].south_prob=0;
+                }
+            if (i!=0&&i!=2&&j==2)
+                {
+                    places[3*i+j].west_prob=1.0/3*100;
+                    places[3*i+j].east_prob=0;
+                    places[3*i+j].north_prob=1.0/3*100;
+                    places[3*i+j].south_prob=1.0/3*100;
+                }
+        }
+    }
 
-    places[0].identifier="Closet1";
-    places[0].xposition=1;
-    places[0].yposition=1;
-    places[0].Virus_level=0;
     places[0].Occupied=true;
-    places[0].person_in_there=0;
-
-    places[1].identifier="Closet2";
-    places[1].xposition=2;
-    places[1].yposition=1;
-    places[1].Virus_level=0;
-    places[1].Occupied=false;
-
-    places[2].identifier="Closet3";
-    places[2].xposition=3;
-    places[2].yposition=1;
-    places[2].Virus_level=0;
-    places[2].Occupied=false;
-
-    places[3].identifier="Closet4";
-    places[3].xposition=1;
-    places[3].yposition=2;
-    places[3].Virus_level=0;
-    places[3].Occupied=false;
-
-    places[4].identifier="Closet5";
-    places[4].xposition=2;
-    places[4].yposition=2;
-    places[4].Virus_level=0;
-    places[4].Occupied=false;
-
-    places[5].identifier="Closet6";
-    places[5].xposition=3;
-    places[5].yposition=2;
-    places[5].Virus_level=0;
-    places[5].Occupied=false;
-
-    places[6].identifier="Closet7";
-    places[6].xposition=1;
-    places[6].yposition=3;
-    places[6].Virus_level=0;
-    places[6].Occupied=false;
-
-    places[7].identifier="Closet8";
-    places[7].xposition=2;
-    places[7].yposition=3;
-    places[7].Virus_level=0;
-    places[7].Occupied=false;
-
-    places[8].identifier="Closet9";
-    places[8].xposition=3;
-    places[8].yposition=3;
-    places[8].Virus_level=0;
     places[8].Occupied=true;
-    places[8].person_in_there=1;
+    places[0].person_in_there=0;
+    places[8].person_in_there=8;
 
     //accessing member function
     //person1.printname();
@@ -198,13 +192,15 @@ int main()
 
     do
     {
- 
+
+
+
     //movement
     //lets see who will move
     v1=rand() %100;
     if (v1<50) current_person=0; else current_person=1;
     
-    person[current_person].move(&newx,&newy);
+    person[current_person].move(places[person[current_person].location].west_prob,places[person[current_person].location].east_prob,places[person[current_person].location].north_prob,places[person[current_person].location].south_prob,&newx,&newy);
     //newx=person[current_person].xposition;
     //newy=person[current_person].yposition;
     
@@ -233,6 +229,7 @@ int main()
 
     person[current_person].xposition=newx;
     person[current_person].yposition=newy;
+    person[current_person].location=PlaceAfter;
 
     //record << "\n" << person1.identifier << " is now at " << places[PlaceAfter].identifier << " which is at " << person1.xposition << " and " << person1.yposition;
     //std::printf("\nThe new position is %d and %d",person1.xposition,person1.yposition);   
@@ -277,13 +274,17 @@ int main()
     } while ((places[i].xposition!=person[1].xposition)||(places[i].yposition!=person[1].yposition));
     EriPlace=i;
 
+    record.open("record.csv",std::fstream::app);
+
+
     record << "\n" << simtime << "," << places[TogaPlace].identifier << "," << places[EriPlace].identifier << "," << places[0].Virus_level << "," << places[1].Virus_level << "," << places[2].Virus_level << "," << places[3].Virus_level << "," << places[4].Virus_level << "," << places[5].Virus_level << "," << places[6].Virus_level << "," << places[7].Virus_level << "," << places[8].Virus_level;
 
+    record.close();
     }
     while(simtime < max_time);
 
    
-    record.close();
+    
 
     return 0;
 }
