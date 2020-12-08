@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <fstream>
+#include <tgmath.h>
 using namespace std;
 
 class Person
@@ -24,6 +25,7 @@ class Person
     bool vaccinated;
     int age;
     int location;
+    double movement_rate;
 
     //Member functions
     void printname()
@@ -70,7 +72,7 @@ int main()
     srand (time(NULL));
     Person person[2];
     Place places[9];
-    double simtime;
+    double simtime,sum_prob;
     int max_time=1000;
     int PlaceBefore,PlaceAfter,i,TogaPlace,EriPlace;
     ofstream record;
@@ -91,6 +93,7 @@ int main()
     person[0].masked=false;
     person[0].vaccinated=false;
     person[0].age=16;
+    person[0].movement_rate=0.1;
     
     person[1].identifier="Eri";
     person[1].xposition=3;
@@ -104,6 +107,7 @@ int main()
     person[1].masked=false;
     person[1].vaccinated=false;
     person[1].age=7;
+    person[1].movement_rate=0.1;
 
     for (int i=0;i<3;i++)
     {
@@ -188,17 +192,21 @@ int main()
 
     //run the simulation until a specified time
 
-    int newx,newy,v1,current_person;
+    int newx,newy,current_person;
+    double v1;
 
     do
     {
 
-
+        //Gillespie algorithm
+        //calculating sum of probabilities
+        sum_prob=0;
+        for (int i=0;i<2;i++) {sum_prob=sum_prob+person[i].movement_rate;}
 
     //movement
     //lets see who will move
-    v1=rand() %100;
-    if (v1<50) current_person=0; else current_person=1;
+    v1=sum_prob*((float) rand()/RAND_MAX) ;
+    if (v1<person[0].movement_rate) current_person=0; else current_person=1;
     
     person[current_person].move(places[person[current_person].location].west_prob,places[person[current_person].location].east_prob,places[person[current_person].location].north_prob,places[person[current_person].location].south_prob,&newx,&newy);
     //newx=person[current_person].xposition;
@@ -234,10 +242,11 @@ int main()
     //record << "\n" << person1.identifier << " is now at " << places[PlaceAfter].identifier << " which is at " << person1.xposition << " and " << person1.yposition;
     //std::printf("\nThe new position is %d and %d",person1.xposition,person1.yposition);   
 
-    //elapse a random amount of time
+    //get the sojourn time
     
-    v1=rand() %100;
-    simtime=simtime+v1;
+    v1=(float) rand()/RAND_MAX;
+
+    simtime=simtime+(1/sum_prob)*log(1/v1);
     //record << "\nThe time is " << simtime;
  
     //increase virus level by some value for all occupied places
