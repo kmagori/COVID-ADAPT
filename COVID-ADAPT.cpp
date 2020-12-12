@@ -28,8 +28,11 @@ class Person
     double movement_rate;
     double exposure_probability;
     double exposure_rate;
+    double infectious_probability;
+    double infectious_rate;
     double sum_prob;
     double exposure_time;
+    double infectious_time;    
 
     //Member functions
     void printname()
@@ -55,7 +58,18 @@ class Person
     {
         susceptible=false;
         exposed=true;
+        infectious=false;
         exposure_time=simtime;
+        exposure_probability=0;
+    }
+
+    void becoming_infectious(double simtime)
+    {
+        susceptible=false;
+        exposed=false;
+        infectious=true;
+        infectious_probability=0;
+        infectious_time=simtime;
     }
 };
 
@@ -84,14 +98,16 @@ int main()
     Person person[2];
     Place places[9];
     double simtime,sum_prob;
-    int max_time=1000;
-    double steepness=1;
-    int midpoint=50;
+    int max_time=10000;
+    double steepness_exposure=1;
+    int midpoint_exposure=50;
+    double steepness_infectious=1;
+    double midpoint_infectious=10;
     int PlaceBefore,PlaceAfter,i,TogaPlace,EriPlace;
     ofstream record;
     record.open("record.csv");
     
-    record << "time,Toga_position,Eri_position,Eri_susceptible,Eri_exposed,Virus_Closet1,Virus_Closet2,Virus_Closet3,Virus_Closet4,Virus_Closet5,Virus_Closet6,Virus_Closet7,Virus_Closet8,Virus_Closet9";
+    record << "time,Toga_position,Eri_position,Eri_susceptible,Eri_exposed,Eri_infectious,Virus_Closet1,Virus_Closet2,Virus_Closet3,Virus_Closet4,Virus_Closet5,Virus_Closet6,Virus_Closet7,Virus_Closet8,Virus_Closet9";
     record.close();
     //accessing data member
     person[0].identifier="Toga";
@@ -111,6 +127,9 @@ int main()
     person[0].exposure_rate=0.1;
     person[0].sum_prob=0;
     person[0].exposure_time=-9999;
+    person[0].infectious_probability=0;
+    person[0].infectious_rate=0.1;
+    person[0].infectious_time=0;
     
     person[1].identifier="Eri";
     person[1].xposition=3;
@@ -129,6 +148,9 @@ int main()
     person[1].exposure_rate=0.1;
     person[1].sum_prob=0;
     person[1].exposure_time=-9999;
+    person[1].infectious_probability=0;
+    person[1].infectious_rate=0.1;
+    person[1].infectious_time=-9999;
 
     for (int i=0;i<3;i++)
     {
@@ -220,11 +242,18 @@ int main()
     {
 
         //calculating probability of becoming exposed
-        for (int i=0;i<2;i++) {if (person[i].susceptible) person[i].exposure_probability=1/(1+exp(-steepness*(places[person[i].location].Virus_level-midpoint)));}
+        for (int i=0;i<2;i++) {if (person[i].susceptible) person[i].exposure_probability=1/(1+exp(-steepness_exposure*(places[person[i].location].Virus_level-midpoint_exposure)));}
+
+        //calculating probability of becoming infectious
+        for (int i=0;i<2;i++) {
+            if (person[i].exposed) {
+            person[i].infectious_probability=1/(1+exp(-steepness_infectious*((simtime-person[i].exposure_time)-midpoint_infectious)));
+            }
+        }
 
         //Gillespie algorithm
         //calculating sum of probabilities across persons, with movement rate, exposure rate
-        for (int i=0;i<2;i++) {person[i].sum_prob=person[i].movement_rate+person[i].exposure_rate*person[i].exposure_probability;}
+        for (int i=0;i<2;i++) {person[i].sum_prob=person[i].movement_rate+person[i].exposure_rate*person[i].exposure_probability+person[i].infectious_rate*person[i].infectious_probability;}
 
         //calculating sum of probabilities overall
         sum_prob=0;
@@ -298,7 +327,10 @@ int main()
 
 
     }
-    else person[current_person].exposure(simtime);
+    else 
+    if(v1<(person[current_person].movement_rate+(person[current_person].exposure_rate*person[current_person].exposure_probability)))
+         person[current_person].exposure(simtime);
+         else person[current_person].becoming_infectious(simtime);
     //record << "\n" << person1.identifier << " is now at " << places[PlaceAfter].identifier << " which is at " << person1.xposition << " and " << person1.yposition;
     //std::printf("\nThe new position is %d and %d",person1.xposition,person1.yposition);   
 
@@ -329,7 +361,7 @@ int main()
     record.open("record.csv",std::fstream::app);
 
 
-    record << "\n" << simtime << "," << places[TogaPlace].identifier << "," << places[EriPlace].identifier << "," << person[1].susceptible << "," << person[1].exposed << "," << places[0].Virus_level << "," << places[1].Virus_level << "," << places[2].Virus_level << "," << places[3].Virus_level << "," << places[4].Virus_level << "," << places[5].Virus_level << "," << places[6].Virus_level << "," << places[7].Virus_level << "," << places[8].Virus_level;
+    record << "\n" << simtime << "," << places[TogaPlace].identifier << "," << places[EriPlace].identifier << "," << person[1].susceptible << "," << person[1].exposed << "," << person[1].infectious_probability << "," << places[0].Virus_level << "," << places[1].Virus_level << "," << places[2].Virus_level << "," << places[3].Virus_level << "," << places[4].Virus_level << "," << places[5].Virus_level << "," << places[6].Virus_level << "," << places[7].Virus_level << "," << places[8].Virus_level;
 
     record.close();
     }
