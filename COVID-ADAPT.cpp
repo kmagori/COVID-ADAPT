@@ -102,7 +102,7 @@ int main()
     double steepness_exposure=1;
     int midpoint_exposure=50;
     double steepness_infectious=1;
-    double midpoint_infectious=10;
+    double midpoint_infectious=7200;
     int PlaceBefore,PlaceAfter,i,TogaPlace,EriPlace;
     ofstream record;
     record.open("record.csv");
@@ -361,7 +361,7 @@ int main()
     record.open("record.csv",std::fstream::app);
 
 
-    record << "\n" << simtime << "," << places[TogaPlace].identifier << "," << places[EriPlace].identifier << "," << person[1].susceptible << "," << person[1].exposed << "," << person[1].infectious_probability << "," << places[0].Virus_level << "," << places[1].Virus_level << "," << places[2].Virus_level << "," << places[3].Virus_level << "," << places[4].Virus_level << "," << places[5].Virus_level << "," << places[6].Virus_level << "," << places[7].Virus_level << "," << places[8].Virus_level;
+    record << "\n" << simtime << "," << places[TogaPlace].identifier << "," << places[EriPlace].identifier << "," << person[1].susceptible << "," << person[1].exposed << "," << person[1].infectious << "," << places[0].Virus_level << "," << places[1].Virus_level << "," << places[2].Virus_level << "," << places[3].Virus_level << "," << places[4].Virus_level << "," << places[5].Virus_level << "," << places[6].Virus_level << "," << places[7].Virus_level << "," << places[8].Virus_level;
 
     record.close();
     }
