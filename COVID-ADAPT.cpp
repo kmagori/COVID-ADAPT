@@ -116,18 +116,20 @@ int main()
     int gridsize=5;
     Place places[gridsize*gridsize];
     double simtime,sum_prob;
-    int max_time=100000;
+    int max_time=30000;
     double steepness_exposure=1;
     int midpoint_exposure=50;
     double steepness_infectious=1;
     double midpoint_infectious=7200;
     double steepness_recovery=1;
     double midpoint_recovery=14400;
+    double virus_decay_rate=0.001;
     int PlaceBefore,PlaceAfter,i,TogaPlace,EriPlace;
     ofstream record;
     record.open("record.csv");
     
-    record << "time,Toga_position,Eri_position,Toga_status,Eri_status,Virus_Closet1,Virus_Closet2,Virus_Closet3,Virus_Closet4,Virus_Closet5,Virus_Closet6,Virus_Closet7,Virus_Closet8,Virus_Closet9";
+    record << "time,Toga_position,Eri_position,Toga_status,Eri_status";
+    for (int i=0;i<=(gridsize*gridsize)-1;i++) record << ",Virus_Closet"+to_string(i);
     record.close();
     //accessing data member
     person[0].identifier="Toga";
@@ -301,13 +303,14 @@ int main()
     simtime=simtime+sojourn_time;
     //record << "\nThe time is " << simtime;
 
-     //increase virus level by some value for all occupied places
+     //increase virus level by some value for all occupied places; and decrease the Virus level
     for (i=0; i<=(gridsize*gridsize-1); i++)
     {    
     if (places[i].Occupied)
         {
                 if (person[places[i].person_in_there].infectious==true) places[i].Virus_level=places[i].Virus_level+sojourn_time;
         }
+    places[i].Virus_level=places[i].Virus_level-(places[i].Virus_level*sojourn_time*virus_decay_rate);
     }
 
     //movement
@@ -400,7 +403,12 @@ int main()
     record.open("record.csv",std::fstream::app);
 
 
-    record << "\n" << simtime << "," << places[TogaPlace].identifier << "," << places[EriPlace].identifier << "," << person[0].status << "," << person[1].status << "," << places[0].Virus_level << "," << places[1].Virus_level << "," << places[2].Virus_level << "," << places[3].Virus_level << "," << places[4].Virus_level << "," << places[5].Virus_level << "," << places[6].Virus_level << "," << places[7].Virus_level << "," << places[8].Virus_level;
+    record << "\n" << simtime << "," << places[TogaPlace].identifier << "," << places[EriPlace].identifier << "," << person[0].status << "," << person[1].status;
+    
+    for (int i=0;i<=(gridsize*gridsize-1);i++)
+    {
+    record << "," << places[i].Virus_level;
+    }
 
     record.close();
     }
