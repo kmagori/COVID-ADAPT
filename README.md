@@ -6,9 +6,17 @@ Disease transmission occurs in the model by infectious individuals exhaling vira
 
 The model is an event-based stochastic model, with the following four events occuring, based on their propensity functions: (1) movement; (2) susceptible individuals becoming exposed; (3) exposed individuals becoming infectious; (4) infectious individuals recovering. Viral particle levels are recalculated at each event in each cell, in a deterministic fashion.
 
-Input to the model is currently at the code level. Output is generated as a form of a CSV file, with each row printed following each event. Rows contain the time of the event; the location of the two individuals in the grid at that time; the infection status of the two individuals; the viral particle levels in each of the cells, enumerated from the top left corner, starting with location 0, going to the right and down. Visualization of the map, and the dynamics of the location and infection status of the two individuals and the viral levels in each cell is done in R, and saved into an animated GIF.
+Input to the model is currently at the code level. Output is generated as a form of a CSV file, with each row printed following each event. Rows contain the time of the event; the location of the two individuals in the grid at that time; the infection status of the two individuals; the viral particle levels in each of the cells, enumerated from the top left corner, starting with location 0, going to the right and down. Visualization of the map, and the dynamics of the location and infection status of the two individuals and the viral levels in each cell is done in R, and saved into an animated GIF (https://github.com/kmagori/COVID-ADAPT/blob/main/raster.gif). The movie shows the grid at each timepoint with susceptible individuals depicted as squares, exposed individuals depicted as circles, infectious individuals depicted as triangles, and recovered individuals depicted as plus signs. The level of viral particles in each cell is shown as the shade of red, relative to the legend bar on the right hand side. 
 
-Prototype v0.1.0
+Prototype v0.1.0 (12/21/2020)
+
+This prototype version of the code is functional, but neither widely useable nor realistic. It uses the Gillespie algorithm to model stochastic events (https://en.wikipedia.org/wiki/Gillespie_algorithm). This means that at every event two random numbers are generated. One random number is used to calculate the sojourn time, telling us the time at which the next event occurs, calculated as an exponentionally distributed random variable, proportional to the overall propensity of events occuring, such that when the probability of events occuring over unit time is higher, the sojourn time will be shorter. The second random number is used to pick the specific event that occurs, and the individual to whom this event occurs, by adding up the probability of each event occuring across all individuals, and selecting the event where the random number times the sum of the probabilities falls. 
+
+Issues and assumption with this version:
+
+1. Only two individuals 
+2. Probability for a susceptible individual being exposed is calculated using the virus level in her/his current location. 
+
 
 
 
