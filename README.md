@@ -42,5 +42,11 @@ Issues with and assumptions of this version:
 
 14. For now, two individuals are not allowed to be present in the same cell, and if they would end up in the same cell, the movement will be aborted, and they will stay in the same cell. However, this can be relaxed in subsequent versions. This could include direct transmission when an infectious and a susceptible individual are in the same cell, but this is not implemented.
 
+15. Noone is vaccinated yet. However, vaccination status will likely change the probability of being exposed, or the level of viral particles needed to get exposed, or whether or not someone becomes infectious, or the viral particle levels that they contaminate their location with. 
+
+16. Mask status is not yet implemented. Mask status will be implemented in changing the probability of being exposed, or the level of viral particles needed to get exposed, or the viral particle levels an infectious individual contaminates their location with.
+
+
+
 
 
