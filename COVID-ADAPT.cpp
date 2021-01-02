@@ -112,7 +112,9 @@ int main()
 {
     //Declare an object
     srand (time(NULL));
-    Person person[2];
+    int number_infectious=1;
+    int number_susceptible=1;
+    Person person[number_infectious+number_susceptible];
     int gridsize=5;
     Place places[gridsize*gridsize];
     double simtime,sum_prob;
@@ -131,56 +133,66 @@ int main()
     record << "time,Toga_position,Eri_position,Toga_status,Eri_status";
     for (int i=0;i<=(gridsize*gridsize)-1;i++) record << ",Virus_Closet"+to_string(i);
     record.close();
-    //accessing data member
-    person[0].identifier="Toga";
-    person[0].xposition=1;
-    person[0].yposition=1;
-    person[0].location=0;
-    person[0].susceptible=false;
-    person[0].exposed=false;
-    person[0].infected=false;
-    person[0].infectious=true;
-    person[0].recovered=false;
-    person[0].masked=false;
-    person[0].vaccinated=false;
-    person[0].age=16;
-    person[0].movement_rate=0.01;
-    person[0].exposure_probability=0;
-    person[0].exposure_rate=0.1;
-    person[0].sum_prob=0;
-    person[0].exposure_time=-9999;
-    person[0].infectious_probability=0;
-    person[0].infectious_rate=0.1;
-    person[0].infectious_time=0;
-    person[0].recovery_probability=0;
-    person[0].recovery_rate=0.1;
-    person[0].recovery_time=-9999;
-    person[0].status=2;
 
-    person[1].identifier="Eri";
-    person[1].xposition=gridsize;
-    person[1].yposition=gridsize;
-    person[1].location=(gridsize*gridsize-1);
-    person[1].susceptible=true;
-    person[1].exposed=false;
-    person[1].infected=false;
-    person[1].infectious=false;
-    person[1].recovered=false;
-    person[1].masked=false;
-    person[1].vaccinated=false;
-    person[1].age=7;
-    person[1].movement_rate=0.01;
-    person[1].exposure_probability=0;
-    person[1].exposure_rate=0.1;
-    person[1].sum_prob=0;
-    person[1].exposure_time=-9999;
-    person[1].infectious_probability=0;
-    person[1].infectious_rate=0.1;
-    person[1].infectious_time=-9999;
-    person[1].recovery_probability=0;
-    person[1].recovery_rate=0.1;
-    person[1].recovery_time=-9999;
-    person[1].status=0;
+    record.open("people.csv");
+    record << "time, person_id, position, status";
+    record.close();
+    //accessing data member
+    for (int i=0;i<number_infectious;i++)
+    {
+    person[i].identifier="Toga";
+    person[i].xposition=1;
+    person[i].yposition=1;
+    person[i].location=0;
+    person[i].susceptible=false;
+    person[i].exposed=false;
+    person[i].infected=false;
+    person[i].infectious=true;
+    person[i].recovered=false;
+    person[i].masked=false;
+    person[i].vaccinated=false;
+    person[i].age=16;
+    person[i].movement_rate=0.01;
+    person[i].exposure_probability=0;
+    person[i].exposure_rate=0.1;
+    person[i].sum_prob=0;
+    person[i].exposure_time=-9999;
+    person[i].infectious_probability=0;
+    person[i].infectious_rate=0.1;
+    person[i].infectious_time=0;
+    person[i].recovery_probability=0;
+    person[i].recovery_rate=0.1;
+    person[i].recovery_time=-9999;
+    person[i].status=2;
+    }
+
+    for (int i=number_infectious;i<(number_infectious+number_susceptible);i++)
+    {
+    person[i].identifier="Eri";
+    person[i].xposition=gridsize;
+    person[i].yposition=gridsize;
+    person[i].location=(gridsize*gridsize-1);
+    person[i].susceptible=true;
+    person[i].exposed=false;
+    person[i].infected=false;
+    person[i].infectious=false;
+    person[i].recovered=false;
+    person[i].masked=false;
+    person[i].vaccinated=false;
+    person[i].age=7;
+    person[i].movement_rate=0.01;
+    person[i].exposure_probability=0;
+    person[i].exposure_rate=0.1;
+    person[i].sum_prob=0;
+    person[i].exposure_time=-9999;
+    person[i].infectious_probability=0;
+    person[i].infectious_rate=0.1;
+    person[i].infectious_time=-9999;
+    person[i].recovery_probability=0;
+    person[i].recovery_rate=0.1;
+    person[i].recovery_time=-9999;
+    person[i].status=0;
+    }
 
     for (int i=0;i<gridsize;i++)
     {
@@ -411,6 +423,20 @@ int main()
     }
 
     record.close();
+
+    record.open("people.csv",std::fstream::app);
+
+    for (int i=0;i<(number_susceptible+number_susceptible);i++)
+    {
+        int j=-1;
+        do
+        {
+            j++;
+        }while ((places[j].xposition!=person[i].xposition)||(places[j].yposition!=person[i].yposition));
+        record << "\n" << simtime << "," << i << "," << places[j].identifier << "," << person[i].status;
+    }
+    record.close();
+
     }
     while(simtime < max_time);
 
