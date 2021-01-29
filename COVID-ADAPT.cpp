@@ -112,8 +112,8 @@ int main()
 {
     //Declare an object
     srand ((unsigned) time(NULL));
-    int number_infectious=2;
-    int number_susceptible=3;
+    int number_infectious=4;
+    int number_susceptible=6;
     Person person[number_infectious+number_susceptible];
     int gridsize=10;
     Place places[gridsize*gridsize];
