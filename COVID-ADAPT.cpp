@@ -211,7 +211,7 @@ int main()
     }
 
     record.open("people.csv");
-    record << "time, person_id, position, status";
+    record << "time, person_id, position, status, masked";
     record.close();
     //accessing data member
     for (int i=0;i<number_infectious;i++)
@@ -233,7 +233,7 @@ int main()
     person[i].infected=false;
     person[i].infectious=true;
     person[i].recovered=false;
-    person[i].masked=false;
+    person[i].masked=true;
     person[i].vaccinated=false;
     person[i].age=16;
     person[i].movement_rate=0.01;
@@ -268,7 +268,7 @@ int main()
     person[i].infected=false;
     person[i].infectious=false;
     person[i].recovered=false;
-    person[i].masked=false;
+    person[i].masked=true;
     person[i].vaccinated=false;
     person[i].age=7;
     person[i].movement_rate=0.01;
@@ -298,6 +298,10 @@ int main()
 
         //calculating probability of becoming exposed
         for (int i=0;i<(number_infectious+number_susceptible);i++) {if (person[i].susceptible) person[i].exposure_probability=1/(1+exp(-steepness_exposure*(places[person[i].location].Virus_level-midpoint_exposure)));}
+
+        //multiplying exposure probability with mask modifier
+        for (int i=0;i<(number_infectious+number_susceptible);i++) {if (person[i].masked) person[i].exposure_probability=0.05*person[i].exposure_probability;}
+
 
         //calculating probability of becoming infectious
         for (int i=0;i<(number_infectious+number_susceptible);i++) {
@@ -333,7 +337,17 @@ int main()
     {    
     if (places[i].Occupied)
         {
-                if (person[places[i].person_in_there].infectious==true) places[i].Virus_level=places[i].Virus_level+sojourn_time;
+                if (person[places[i].person_in_there].infectious==true) 
+                    {
+                        if (person[places[i].person_in_there].masked) 
+                        {
+                            places[i].Virus_level=places[i].Virus_level+sojourn_time*0.05;
+                        }
+                        else
+                        {
+                            places[i].Virus_level=places[i].Virus_level+sojourn_time*0.05;                        
+                        }
+                    }
         }
     places[i].Virus_level=places[i].Virus_level-(places[i].Virus_level*sojourn_time*virus_decay_rate);
     }
@@ -427,7 +441,7 @@ int main()
         {
             j++;
         }while ((places[j].xposition!=person[i].xposition)||(places[j].yposition!=person[i].yposition));
-        record << "\n" << simtime << "," << i << "," << places[j].identifier << "," << person[i].status;
+        record << "\n" << simtime << "," << i << "," << places[j].identifier << "," << person[i].status << "," << person[i].masked;
     }
     record.close();
 
