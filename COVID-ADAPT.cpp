@@ -5,6 +5,7 @@
 #include <time.h>
 #include <fstream>
 #include <tgmath.h>
+#include <iomanip>
 using namespace std;
 
 class Person
@@ -131,7 +132,7 @@ int main()
     ofstream record;
     record.open("virus_levels.csv");
     
-    record << "time,";
+    record << fixed << setprecision(9) << "time,";
     for (int i=0;i<=(gridsize*gridsize)-1;i++) record << ",Virus_Closet"+to_string(i);
     record.close();
 
@@ -211,7 +212,7 @@ int main()
     }
 
     record.open("people.csv");
-    record << "time, person_id, position, status, masked";
+    record << fixed << setprecision(9) << "time, person_id, position, status, masked";
     record.close();
     //accessing data member
     for (int i=0;i<number_infectious;i++)
@@ -233,7 +234,7 @@ int main()
     person[i].infected=false;
     person[i].infectious=true;
     person[i].recovered=false;
-    person[i].masked=true;
+    person[i].masked=false;
     person[i].vaccinated=false;
     person[i].age=16;
     person[i].movement_rate=0.01;
@@ -345,7 +346,7 @@ int main()
                         }
                         else
                         {
-                            places[i].Virus_level=places[i].Virus_level+sojourn_time*0.05;                        
+                            places[i].Virus_level=places[i].Virus_level+sojourn_time;                        
                         }
                     }
         }
