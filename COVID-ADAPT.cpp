@@ -6,6 +6,7 @@
 #include <fstream>
 #include <tgmath.h>
 #include <iomanip>
+#include <vector>
 using namespace std;
 
 class Person
@@ -107,17 +108,19 @@ class Place
     double north_prob;
     double east_prob;
     double south_prob;
+    double total_prob;
 };
 
 int main()
 {
     //Declare an object
     srand ((unsigned) time(NULL));
-    int number_infectious=4;
-    int number_susceptible=6;
+    int number_infectious=1;
+    int number_susceptible=1;
     Person person[number_infectious+number_susceptible];
-    int gridsize=10;
+    int gridsize=3;
     Place places[gridsize*gridsize];
+    //double Boundaries[gridsize*gridsize,4];
     double simtime,sum_prob;
     int max_time=30000;
     double steepness_exposure=1;
@@ -130,6 +133,11 @@ int main()
     double current_sum;
     int PlaceBefore,PlaceAfter;
     ofstream record;
+    fstream fin;
+    string example;
+
+
+
     record.open("virus_levels.csv");
     
     record << fixed << setprecision(9) << "time,";
@@ -152,6 +160,7 @@ int main()
             places[gridsize*i+j].east_prob=25;
             places[gridsize*i+j].north_prob=25;
             places[gridsize*i+j].south_prob=25;
+            places[gridsize*i+j].total_prob=100;
             if (i==0&&j==0)
                 {
                     places[gridsize*i+j].west_prob=0;
@@ -211,6 +220,29 @@ int main()
         }
     }
 
+    fin.open("layout.csv",ios::in);
+
+    for (int i=0;i<(gridsize*gridsize);i++)
+    {
+        char* val;
+        getline(fin,example);
+        std::vector<char> v(example.begin(),example.end());
+        places[i].west_prob=v[0]-48;
+        places[i].east_prob=v[2]-48;
+        places[i].north_prob=v[4]-48;
+        places[i].south_prob=v[6]-48;
+    }
+    fin.close();
+
+    for (int i=0;i<(gridsize*gridsize);i++)
+    {
+        places[i].total_prob=places[i].west_prob+places[i].east_prob+places[i].north_prob+places[i].south_prob;
+        places[i].west_prob=places[i].west_prob/places[i].total_prob*100;
+        places[i].east_prob=places[i].east_prob/places[i].total_prob*100;
+        places[i].north_prob=places[i].north_prob/places[i].total_prob*100;
+        places[i].south_prob=places[i].south_prob/places[i].total_prob*100;
+   }
+ 
     record.open("people.csv");
     record << fixed << setprecision(9) << "time, person_id, position, status, masked";
     record.close();
@@ -234,7 +266,7 @@ int main()
     person[i].infected=false;
     person[i].infectious=true;
     person[i].recovered=false;
-    person[i].masked=false;
+    person[i].masked=true;
     person[i].vaccinated=false;
     person[i].age=16;
     person[i].movement_rate=0.01;
@@ -285,6 +317,9 @@ int main()
     person[i].recovery_time=-9999;
     person[i].status=0;
     }
+
+    //making only 1 infectious person unmasked
+    person[0].masked=false;
 
     //accessing member function
     //person1.printname();
