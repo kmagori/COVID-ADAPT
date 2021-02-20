@@ -118,9 +118,9 @@ int main()
     int number_infectious=1;
     int number_susceptible=1;
     Person person[number_infectious+number_susceptible];
-    int gridsize=3;
-    Place places[gridsize*gridsize];
-    //double Boundaries[gridsize*gridsize,4];
+    int gridsize_x=3;
+    int gridsize_y=9;
+    Place places[gridsize_x*gridsize_y];
     double simtime,sum_prob;
     int max_time=30000;
     double steepness_exposure=1;
@@ -141,88 +141,88 @@ int main()
     record.open("virus_levels.csv");
     
     record << fixed << setprecision(9) << "time,";
-    for (int i=0;i<=(gridsize*gridsize)-1;i++) record << ",Virus_Closet"+to_string(i);
+    for (int i=0;i<=(gridsize_x*gridsize_y)-1;i++) record << ",Virus_Closet"+to_string(i);
     record.close();
 
     
 
-    for (int i=0;i<gridsize;i++)
+    for (int i=0;i<gridsize_y;i++)
     {
-        for (int j=0;j<gridsize;j++)
+        for (int j=0;j<gridsize_x;j++)
         {
-            places[gridsize*i+j].identifier="Closet" + to_string(gridsize*i+j+1);
-            places[gridsize*i+j].xposition=j+1;
-            places[gridsize*i+j].yposition=i+1;
-            places[gridsize*i+j].Virus_level=0;
-            places[gridsize*i+j].Occupied=false;
-            places[gridsize*i+j].person_in_there=-9999;
-            places[gridsize*i+j].west_prob=25;
-            places[gridsize*i+j].east_prob=25;
-            places[gridsize*i+j].north_prob=25;
-            places[gridsize*i+j].south_prob=25;
-            places[gridsize*i+j].total_prob=100;
+            places[gridsize_x*i+j].identifier="Closet" + to_string(gridsize_x*i+j+1);
+            places[gridsize_x*i+j].xposition=j+1;
+            places[gridsize_x*i+j].yposition=i+1;
+            places[gridsize_x*i+j].Virus_level=0;
+            places[gridsize_x*i+j].Occupied=false;
+            places[gridsize_x*i+j].person_in_there=-9999;
+            places[gridsize_x*i+j].west_prob=25;
+            places[gridsize_x*i+j].east_prob=25;
+            places[gridsize_x*i+j].north_prob=25;
+            places[gridsize_x*i+j].south_prob=25;
+            places[gridsize_x*i+j].total_prob=100;
             if (i==0&&j==0)
                 {
-                    places[gridsize*i+j].west_prob=0;
-                    places[gridsize*i+j].east_prob=50;
-                    places[gridsize*i+j].north_prob=0;
-                    places[gridsize*i+j].south_prob=50;
+                    places[gridsize_x*i+j].west_prob=0;
+                    places[gridsize_x*i+j].east_prob=50;
+                    places[gridsize_x*i+j].north_prob=0;
+                    places[gridsize_x*i+j].south_prob=50;
                 }
-            if (i==(gridsize-1)&&j==0)
+            if (i==(gridsize_y-1)&&j==0)
                 {
-                    places[gridsize*i+j].west_prob=0;
-                    places[gridsize*i+j].east_prob=50;
-                    places[gridsize*i+j].north_prob=50;
-                    places[gridsize*i+j].south_prob=0;
+                    places[gridsize_x*i+j].west_prob=0;
+                    places[gridsize_x*i+j].east_prob=50;
+                    places[gridsize_x*i+j].north_prob=50;
+                    places[gridsize_x*i+j].south_prob=0;
                 }
-            if (i==0&&j==(gridsize-1))
+            if (i==0&&j==(gridsize_x-1))
                 {
-                    places[gridsize*i+j].west_prob=50;
-                    places[gridsize*i+j].east_prob=0;
-                    places[gridsize*i+j].north_prob=0;
-                    places[gridsize*i+j].south_prob=50;
+                    places[gridsize_x*i+j].west_prob=50;
+                    places[gridsize_x*i+j].east_prob=0;
+                    places[gridsize_x*i+j].north_prob=0;
+                    places[gridsize_x*i+j].south_prob=50;
                 }
-            if (i==(gridsize-1)&&j==(gridsize-1))
+            if (i==(gridsize_y-1)&&j==(gridsize_x-1))
                 {
-                    places[gridsize*i+j].west_prob=50;
-                    places[gridsize*i+j].east_prob=0;
-                    places[gridsize*i+j].north_prob=50;
-                    places[gridsize*i+j].south_prob=0;
+                    places[gridsize_x*i+j].west_prob=50;
+                    places[gridsize_x*i+j].east_prob=0;
+                    places[gridsize_x*i+j].north_prob=50;
+                    places[gridsize_x*i+j].south_prob=0;
                 }
-            if (i==0&&j!=0&&j!=(gridsize-1))
+            if (i==0&&j!=0&&j!=(gridsize_x-1))
                 {
-                    places[gridsize*i+j].west_prob=1.0/3*100;
-                    places[gridsize*i+j].east_prob=1.0/3*100;
-                    places[gridsize*i+j].north_prob=0;
-                    places[gridsize*i+j].south_prob=1.0/3*100;
+                    places[gridsize_x*i+j].west_prob=1.0/3*100;
+                    places[gridsize_x*i+j].east_prob=1.0/3*100;
+                    places[gridsize_x*i+j].north_prob=0;
+                    places[gridsize_x*i+j].south_prob=1.0/3*100;
                 }
-            if (i!=0&&i!=(gridsize-1)&&j==0)
+            if (i!=0&&i!=(gridsize_y-1)&&j==0)
                 {
-                    places[gridsize*i+j].west_prob=0;
-                    places[gridsize*i+j].east_prob=1.0/3*100;
-                    places[gridsize*i+j].north_prob=1.0/3*100;
-                    places[gridsize*i+j].south_prob=1.0/3*100;
+                    places[gridsize_x*i+j].west_prob=0;
+                    places[gridsize_x*i+j].east_prob=1.0/3*100;
+                    places[gridsize_x*i+j].north_prob=1.0/3*100;
+                    places[gridsize_x*i+j].south_prob=1.0/3*100;
                 }
-            if (i==(gridsize-1)&&j!=0&&j!=(gridsize-1))
+            if (i==(gridsize_y-1)&&j!=0&&j!=(gridsize_x-1))
                 {
-                    places[gridsize*i+j].west_prob=1.0/3*100;
-                    places[gridsize*i+j].east_prob=1.0/3*100;
-                    places[gridsize*i+j].north_prob=1.0/3*100;
-                    places[gridsize*i+j].south_prob=0;
+                    places[gridsize_x*i+j].west_prob=1.0/3*100;
+                    places[gridsize_x*i+j].east_prob=1.0/3*100;
+                    places[gridsize_x*i+j].north_prob=1.0/3*100;
+                    places[gridsize_x*i+j].south_prob=0;
                 }
-            if (i!=0&&i!=(gridsize-1)&&j==(gridsize-1))
+            if (i!=0&&i!=(gridsize_y-1)&&j==(gridsize_x-1))
                 {
-                    places[gridsize*i+j].west_prob=1.0/3*100;
-                    places[gridsize*i+j].east_prob=0;
-                    places[gridsize*i+j].north_prob=1.0/3*100;
-                    places[gridsize*i+j].south_prob=1.0/3*100;
+                    places[gridsize_x*i+j].west_prob=1.0/3*100;
+                    places[gridsize_x*i+j].east_prob=0;
+                    places[gridsize_x*i+j].north_prob=1.0/3*100;
+                    places[gridsize_x*i+j].south_prob=1.0/3*100;
                 }
         }
     }
 
     fin.open("layout.csv",ios::in);
 
-    for (int i=0;i<(gridsize*gridsize);i++)
+    for (int i=0;i<(gridsize_x*gridsize_y);i++)
     {
         char* val;
         getline(fin,example);
@@ -234,7 +234,7 @@ int main()
     }
     fin.close();
 
-    for (int i=0;i<(gridsize*gridsize);i++)
+    for (int i=0;i<(gridsize_x*gridsize_y);i++)
     {
         places[i].total_prob=places[i].west_prob+places[i].east_prob+places[i].north_prob+places[i].south_prob;
         places[i].west_prob=places[i].west_prob/places[i].total_prob*100;
@@ -253,11 +253,11 @@ int main()
     
     do
     {
-    person[i].location=floor(((float) rand()/RAND_MAX)*(gridsize*gridsize-1));
+    person[i].location=floor(((float) rand()/RAND_MAX)*(gridsize_x*gridsize_y-1));
     }
     while (places[person[i].location].Occupied);
-    person[i].xposition=(person[i].location % gridsize) + 1 ;
-    person[i].yposition=((int) person[i].location/gridsize) + 1;
+    person[i].xposition=(person[i].location % gridsize_x) + 1 ;
+    person[i].yposition=((int) person[i].location/gridsize_x) + 1;
     places[person[i].location].Occupied=true;
     places[person[i].location].person_in_there=i;
 
@@ -288,11 +288,11 @@ int main()
     person[i].identifier="Eri";
     do
     {
-        person[i].location=floor(((float) rand()/RAND_MAX)*(gridsize*gridsize-1));
+        person[i].location=floor(((float) rand()/RAND_MAX)*(gridsize_x*gridsize_y-1));
     }
     while (places[person[i].location].Occupied);
-    person[i].xposition=(person[i].location % gridsize) + 1;
-    person[i].yposition=((int) person[i].location/gridsize) + 1;
+    person[i].xposition=(person[i].location % gridsize_x) + 1;
+    person[i].yposition=((int) person[i].location/gridsize_x) + 1;
     places[person[i].location].Occupied=true;
     places[person[i].location].person_in_there=i;
 
@@ -369,7 +369,7 @@ int main()
     //record << "\nThe time is " << simtime;
 
      //increase virus level by some value for all occupied places; and decrease the Virus level
-    for (int i=0; i<=(gridsize*gridsize-1); i++)
+    for (int i=0; i<=(gridsize_x*gridsize_y-1); i++)
     {    
     if (places[i].Occupied)
         {
@@ -461,7 +461,7 @@ int main()
 
     record << "\n" << simtime << "," ;
     
-    for (int i=0;i<=(gridsize*gridsize-1);i++)
+    for (int i=0;i<=(gridsize_x*gridsize_y-1);i++)
     {
     record << "," << places[i].Virus_level;
     }
