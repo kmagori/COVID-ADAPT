@@ -115,11 +115,11 @@ int main()
 {
     //Declare an object
     srand ((unsigned) time(NULL));
-    int number_infectious=1;
-    int number_susceptible=1;
+    int number_infectious=4;
+    int number_susceptible=6;
     Person person[number_infectious+number_susceptible];
-    int gridsize_x=3;
-    int gridsize_y=9;
+    int gridsize_x=43;
+    int gridsize_y=43;
     Place places[gridsize_x*gridsize_y];
     double simtime,sum_prob;
     int max_time=30000;
@@ -161,62 +161,7 @@ int main()
             places[gridsize_x*i+j].north_prob=25;
             places[gridsize_x*i+j].south_prob=25;
             places[gridsize_x*i+j].total_prob=100;
-            if (i==0&&j==0)
-                {
-                    places[gridsize_x*i+j].west_prob=0;
-                    places[gridsize_x*i+j].east_prob=50;
-                    places[gridsize_x*i+j].north_prob=0;
-                    places[gridsize_x*i+j].south_prob=50;
-                }
-            if (i==(gridsize_y-1)&&j==0)
-                {
-                    places[gridsize_x*i+j].west_prob=0;
-                    places[gridsize_x*i+j].east_prob=50;
-                    places[gridsize_x*i+j].north_prob=50;
-                    places[gridsize_x*i+j].south_prob=0;
-                }
-            if (i==0&&j==(gridsize_x-1))
-                {
-                    places[gridsize_x*i+j].west_prob=50;
-                    places[gridsize_x*i+j].east_prob=0;
-                    places[gridsize_x*i+j].north_prob=0;
-                    places[gridsize_x*i+j].south_prob=50;
-                }
-            if (i==(gridsize_y-1)&&j==(gridsize_x-1))
-                {
-                    places[gridsize_x*i+j].west_prob=50;
-                    places[gridsize_x*i+j].east_prob=0;
-                    places[gridsize_x*i+j].north_prob=50;
-                    places[gridsize_x*i+j].south_prob=0;
-                }
-            if (i==0&&j!=0&&j!=(gridsize_x-1))
-                {
-                    places[gridsize_x*i+j].west_prob=1.0/3*100;
-                    places[gridsize_x*i+j].east_prob=1.0/3*100;
-                    places[gridsize_x*i+j].north_prob=0;
-                    places[gridsize_x*i+j].south_prob=1.0/3*100;
-                }
-            if (i!=0&&i!=(gridsize_y-1)&&j==0)
-                {
-                    places[gridsize_x*i+j].west_prob=0;
-                    places[gridsize_x*i+j].east_prob=1.0/3*100;
-                    places[gridsize_x*i+j].north_prob=1.0/3*100;
-                    places[gridsize_x*i+j].south_prob=1.0/3*100;
-                }
-            if (i==(gridsize_y-1)&&j!=0&&j!=(gridsize_x-1))
-                {
-                    places[gridsize_x*i+j].west_prob=1.0/3*100;
-                    places[gridsize_x*i+j].east_prob=1.0/3*100;
-                    places[gridsize_x*i+j].north_prob=1.0/3*100;
-                    places[gridsize_x*i+j].south_prob=0;
-                }
-            if (i!=0&&i!=(gridsize_y-1)&&j==(gridsize_x-1))
-                {
-                    places[gridsize_x*i+j].west_prob=1.0/3*100;
-                    places[gridsize_x*i+j].east_prob=0;
-                    places[gridsize_x*i+j].north_prob=1.0/3*100;
-                    places[gridsize_x*i+j].south_prob=1.0/3*100;
-                }
+           
         }
     }
 
@@ -251,13 +196,14 @@ int main()
     {
     person[i].identifier="Toga";
     
+    
     do
     {
     person[i].location=floor(((float) rand()/RAND_MAX)*(gridsize_x*gridsize_y-1));
-    }
-    while (places[person[i].location].Occupied);
     person[i].xposition=(person[i].location % gridsize_x) + 1 ;
     person[i].yposition=((int) person[i].location/gridsize_x) + 1;
+    }
+    while (places[person[i].location].Occupied||(person[i].xposition<9&&person[i].yposition<9)||(person[i].xposition<9&&person[i].yposition>33)||(person[i].xposition>33&&person[i].yposition<9)||(person[i].xposition>33&&person[i].yposition>33)||(person[i].xposition>12&&person[i].xposition<32&&person[i].yposition>12&&person[i].yposition<32));
     places[person[i].location].Occupied=true;
     places[person[i].location].person_in_there=i;
 
@@ -289,10 +235,10 @@ int main()
     do
     {
         person[i].location=floor(((float) rand()/RAND_MAX)*(gridsize_x*gridsize_y-1));
+        person[i].xposition=(person[i].location % gridsize_x) + 1;
+        person[i].yposition=((int) person[i].location/gridsize_x) + 1;
     }
-    while (places[person[i].location].Occupied);
-    person[i].xposition=(person[i].location % gridsize_x) + 1;
-    person[i].yposition=((int) person[i].location/gridsize_x) + 1;
+    while (places[person[i].location].Occupied||(person[i].xposition<9&&person[i].yposition<9)||(person[i].xposition<9&&person[i].yposition>33)||(person[i].xposition>33&&person[i].yposition<9)||(person[i].xposition>33&&person[i].yposition>33)||(person[i].xposition>12&&person[i].xposition<31&&person[i].yposition>12&&person[i].yposition<31));
     places[person[i].location].Occupied=true;
     places[person[i].location].person_in_there=i;
 
