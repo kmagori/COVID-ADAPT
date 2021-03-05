@@ -115,8 +115,8 @@ int main()
 {
     //Declare an object
     srand ((unsigned) time(NULL));
-    int number_infectious=4;
-    int number_susceptible=6;
+    int number_infectious=8;
+    int number_susceptible=12;
     Person person[number_infectious+number_susceptible];
     int gridsize_x=43;
     int gridsize_y=43;
@@ -124,7 +124,7 @@ int main()
     double simtime,sum_prob;
     int max_time=30000;
     double steepness_exposure=1;
-    int midpoint_exposure=50;
+    int midpoint_exposure=1.5;
     double steepness_infectious=1;
     double midpoint_infectious=7200;
     double steepness_recovery=1;
@@ -132,6 +132,7 @@ int main()
     double virus_decay_rate=0.001;
     double current_sum;
     int PlaceBefore,PlaceAfter;
+    double quanta_rate=14.28;
     ofstream record;
     fstream fin;
     string example;
@@ -176,6 +177,7 @@ int main()
         places[i].east_prob=v[2]-48;
         places[i].north_prob=v[4]-48;
         places[i].south_prob=v[6]-48;
+        //places[i].identifier=v[8];
     }
     fin.close();
 
@@ -203,7 +205,7 @@ int main()
     person[i].xposition=(person[i].location % gridsize_x) + 1 ;
     person[i].yposition=((int) person[i].location/gridsize_x) + 1;
     }
-    while (places[person[i].location].Occupied||(person[i].xposition<9&&person[i].yposition<9)||(person[i].xposition<9&&person[i].yposition>33)||(person[i].xposition>33&&person[i].yposition<9)||(person[i].xposition>33&&person[i].yposition>33)||(person[i].xposition>12&&person[i].xposition<32&&person[i].yposition>12&&person[i].yposition<32));
+    while (places[person[i].location].Occupied||(person[i].xposition<10&&person[i].yposition<10)||(person[i].xposition<10&&person[i].yposition>33)||(person[i].xposition>33&&person[i].yposition<10)||(person[i].xposition>33&&person[i].yposition>33)||(person[i].xposition>12&&person[i].xposition<33&&person[i].yposition>12&&person[i].yposition<33));
     places[person[i].location].Occupied=true;
     places[person[i].location].person_in_there=i;
 
@@ -212,10 +214,10 @@ int main()
     person[i].infected=false;
     person[i].infectious=true;
     person[i].recovered=false;
-    person[i].masked=true;
+    person[i].masked=false;
     person[i].vaccinated=false;
     person[i].age=16;
-    person[i].movement_rate=0.01;
+    person[i].movement_rate=0.1;
     person[i].exposure_probability=0;
     person[i].exposure_rate=0.1;
     person[i].sum_prob=0;
@@ -238,7 +240,7 @@ int main()
         person[i].xposition=(person[i].location % gridsize_x) + 1;
         person[i].yposition=((int) person[i].location/gridsize_x) + 1;
     }
-    while (places[person[i].location].Occupied||(person[i].xposition<9&&person[i].yposition<9)||(person[i].xposition<9&&person[i].yposition>33)||(person[i].xposition>33&&person[i].yposition<9)||(person[i].xposition>33&&person[i].yposition>33)||(person[i].xposition>12&&person[i].xposition<31&&person[i].yposition>12&&person[i].yposition<31));
+    while (places[person[i].location].Occupied||(person[i].xposition<10&&person[i].yposition<10)||(person[i].xposition<10&&person[i].yposition>33)||(person[i].xposition>33&&person[i].yposition<10)||(person[i].xposition>33&&person[i].yposition>33)||(person[i].xposition>12&&person[i].xposition<33&&person[i].yposition>12&&person[i].yposition<33));
     places[person[i].location].Occupied=true;
     places[person[i].location].person_in_there=i;
 
@@ -247,10 +249,10 @@ int main()
     person[i].infected=false;
     person[i].infectious=false;
     person[i].recovered=false;
-    person[i].masked=true;
+    person[i].masked=false;
     person[i].vaccinated=false;
     person[i].age=7;
-    person[i].movement_rate=0.01;
+    person[i].movement_rate=0.1;
     person[i].exposure_probability=0;
     person[i].exposure_rate=0.1;
     person[i].sum_prob=0;
@@ -323,11 +325,11 @@ int main()
                     {
                         if (person[places[i].person_in_there].masked) 
                         {
-                            places[i].Virus_level=places[i].Virus_level+sojourn_time*0.05;
+                            places[i].Virus_level=places[i].Virus_level+sojourn_time*quanta_rate*0.05;
                         }
                         else
                         {
-                            places[i].Virus_level=places[i].Virus_level+sojourn_time;                        
+                            places[i].Virus_level=places[i].Virus_level+sojourn_time*quanta_rate;                        
                         }
                     }
         }
