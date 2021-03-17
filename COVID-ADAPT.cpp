@@ -115,8 +115,8 @@ int main()
 {
     //Declare an object
     srand ((unsigned) time(NULL));
-    int number_infectious=8;
-    int number_susceptible=12;
+    int number_infectious=4;
+    int number_susceptible=6;
     Person person[number_infectious+number_susceptible];
     int gridsize_x=43;
     int gridsize_y=43;
@@ -124,7 +124,7 @@ int main()
     double simtime,sum_prob;
     int max_time=30000;
     double steepness_exposure=1;
-    int midpoint_exposure=1.5;
+    int midpoint_exposure=50;
     double steepness_infectious=1;
     double midpoint_infectious=7200;
     double steepness_recovery=1;
@@ -173,11 +173,12 @@ int main()
         char* val;
         getline(fin,example);
         std::vector<char> v(example.begin(),example.end());
-        places[i].west_prob=v[0]-48;
-        places[i].east_prob=v[2]-48;
-        places[i].north_prob=v[4]-48;
-        places[i].south_prob=v[6]-48;
-        //places[i].identifier=v[8];
+        places[i].west_prob=v[1]-48;
+        places[i].east_prob=v[5]-48;
+        places[i].north_prob=v[9]-48;
+        places[i].south_prob=v[13]-48;
+        places[i].identifier=v[17];
+        for (int j=18;j<(v.size()-1);j++) places[i].identifier+=v[j];
     }
     fin.close();
 
