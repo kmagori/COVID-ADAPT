@@ -7,6 +7,7 @@
 #include <tgmath.h>
 #include <iomanip>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 class Person
@@ -111,6 +112,18 @@ class Place
     double total_prob;
 };
 
+class Room
+{
+    //Access specifier
+    public:
+
+    //Data members
+    string identifier;
+    double Total_Virus_level;
+    double Average_Virus_level;
+    int Number_cells;
+};
+
 int main()
 {
     //Declare an object
@@ -136,8 +149,8 @@ int main()
     ofstream record;
     fstream fin;
     string example;
-
-
+    vector<string> RoomIDs; 
+   
 
     record.open("virus_levels.csv");
     
@@ -179,6 +192,7 @@ int main()
         places[i].south_prob=v[13]-48;
         places[i].identifier=v[17];
         for (int j=18;j<(v.size()-1);j++) places[i].identifier+=v[j];
+        RoomIDs.push_back(places[i].identifier);
     }
     fin.close();
 
@@ -190,7 +204,31 @@ int main()
         places[i].north_prob=places[i].north_prob/places[i].total_prob*100;
         places[i].south_prob=places[i].south_prob/places[i].total_prob*100;
    }
- 
+
+   //making Rooms
+   std::sort(RoomIDs.begin(),RoomIDs.end());
+   std::unique(RoomIDs.begin(),RoomIDs.end());
+    auto vi = RoomIDs.begin();
+    std::advance(vi,38);
+   RoomIDs.erase(vi,RoomIDs.end());
+   //Room Rooms[RoomIDs.size()];
+   Room Rooms[38];
+    for (int i=0;i<RoomIDs.size();i++) Rooms[i].identifier=RoomIDs.at(i); 
+    for (int i=0;i<RoomIDs.size();i++) Rooms[i].Total_Virus_level=0;
+    for (int i=0;i<RoomIDs.size();i++) Rooms[i].Average_Virus_level=0;
+    for (int i=0;i<RoomIDs.size();i++) Rooms[i].Number_cells=0;
+
+    //count up how many cells in each Room
+   for (int i=0;i<(gridsize_x*gridsize_y);i++)
+   {
+       string this_room=places[i].identifier;
+       int this_room_number=0;
+       while(Rooms[this_room_number].identifier!=this_room) this_room_number++;
+       Rooms[this_room_number].Number_cells++;
+   }
+
+    
+
     record.open("people.csv");
     record << fixed << setprecision(9) << "time, person_id, position, status, masked";
     record.close();
@@ -337,6 +375,29 @@ int main()
     places[i].Virus_level=places[i].Virus_level-(places[i].Virus_level*sojourn_time*virus_decay_rate);
     }
 
+    //homogenize virus levels between places with the same identifier
+
+    for (int i=0;i<RoomIDs.size();i++) Rooms[i].Total_Virus_level=0;
+
+    for (int i=0;i<(gridsize_x*gridsize_y);i++)
+    {   
+       string this_room=places[i].identifier;
+       int this_room_number=0;
+       while(Rooms[this_room_number].identifier!=this_room) this_room_number++;
+       Rooms[this_room_number].Total_Virus_level+=places[i].Virus_level;    
+    }
+
+    for (int i=0;i<RoomIDs.size();i++) Rooms[i].Average_Virus_level=Rooms[i].Total_Virus_level/Rooms[i].Number_cells;
+
+    for (int i=0;i<(gridsize_x*gridsize_y);i++)
+    {   
+       string this_room=places[i].identifier;
+       int this_room_number=0;
+       while(Rooms[this_room_number].identifier!=this_room) this_room_number++;
+       places[i].Virus_level=Rooms[this_room_number].Average_Virus_level;    
+    }
+
+
     //movement
     //lets see who will do something
     v1=sum_prob*((float) rand()/RAND_MAX) ;
@@ -426,7 +487,7 @@ int main()
         {
             j++;
         }while ((places[j].xposition!=person[i].xposition)||(places[j].yposition!=person[i].yposition));
-        record << "\n" << simtime << "," << i << "," << places[j].identifier << "," << person[i].status << "," << person[i].masked;
+        record << "\n" << simtime << "," << i << "," << j << "," << person[i].status << "," << person[i].masked;
     }
     record.close();
 
