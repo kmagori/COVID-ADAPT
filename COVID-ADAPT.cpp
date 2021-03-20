@@ -351,6 +351,7 @@ int main()
     //get the sojourn time
     
     v1=(float) rand()/RAND_MAX;
+    if (v1==0) v1=0.00000000000001;
     sojourn_time=(1/sum_prob)*log(1/v1);
     simtime=simtime+sojourn_time;
     //record << "\nThe time is " << simtime;
