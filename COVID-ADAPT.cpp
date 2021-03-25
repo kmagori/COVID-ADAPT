@@ -136,8 +136,8 @@ int main()
     Place places[gridsize_x*gridsize_y];
     double simtime,sum_prob;
     int max_time=30000;
-    double steepness_exposure=1;
-    int midpoint_exposure=50;
+    double steepness_exposure=20;
+    int midpoint_exposure=0.75;
     double steepness_infectious=1;
     double midpoint_infectious=7200;
     double steepness_recovery=1;
@@ -319,8 +319,11 @@ int main()
     do
     {
 
+        //zeroing out the probability of becoming exposed
+        for (int i=0;i<(number_infectious+number_susceptible);i++) person[i].exposure_probability=0;
+
         //calculating probability of becoming exposed
-        for (int i=0;i<(number_infectious+number_susceptible);i++) {if (person[i].susceptible) person[i].exposure_probability=1/(1+exp(-steepness_exposure*(places[person[i].location].Virus_level-midpoint_exposure)));}
+        for (int i=0;i<(number_infectious+number_susceptible);i++) {if (person[i].susceptible) if(places[person[i].location].Virus_level>0) person[i].exposure_probability=1/(1+exp(-steepness_exposure*(places[person[i].location].Virus_level-midpoint_exposure)));}
 
         //multiplying exposure probability with mask modifier
         for (int i=0;i<(number_infectious+number_susceptible);i++) {if (person[i].masked) person[i].exposure_probability=0.05*person[i].exposure_probability;}
