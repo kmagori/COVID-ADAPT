@@ -7,8 +7,8 @@ people=read.csv(file="people.csv",header=TRUE)
 layout=read.csv(file="layout.csv",header=FALSE)
 
 #gridsize=sqrt(dim(virus_levels)[2]-2)
-gridsize_x=19;
-gridsize_y=9;
+gridsize_x=43;
+gridsize_y=43;
 
 
 layout$position=seq(0,dim(layout)[1]-1,1)
@@ -17,12 +17,12 @@ layout$y=abs((layout$position %/% gridsize_x) - (gridsize_y-1))
   
 
 
-people$position=as.numeric(substring(people$position,7,length(people$position)))-1
+#people$position=as.numeric(substring(people$position,7,length(people$position)))-1
 people$x=people$position %% gridsize_x
 people$y=abs((people$position %/% gridsize_x) - (gridsize_y-1))
 
 
-viruslevels=virus_levels[,3:dim(virus_levels)[2]]
+viruslevels=virus_levels[-dim(virus_levels)[1],3:dim(virus_levels)[2]]
 current_viruslevels=matrix(as.numeric(viruslevels[1,]),nrow=gridsize_x,ncol=gridsize_y)
 library(raster)
 library(gifski)
@@ -37,7 +37,7 @@ for (i in 1:dim(viruslevels)[1])
   png(sprintf("frame%03d.png",i))
   values(r)=as.numeric(viruslevels[i,])
 #  values(r)=current_viruslevels
-  par(mar=c(5,4,4,2))
+#  par(mar=c(5,4,4,2))
 #plot(0, xlim=c(0,gridsize_x+1),ylim=c(0,gridsize_y),xaxt = 'n', yaxt = 'n', bty = 'n', pch = '', ylab = '', xlab = '')
 #rasterImage(as.raster(r),0,0,gridsize_x,gridsize_y,interpolate=FALSE)
 plot(r,asp=NA,breaks=cuts,col=pal(10),xaxs="i",yaxs="i",add=FALSE)
@@ -54,7 +54,8 @@ for (j in 1:dim(layout)[1])
   lines(c(layout$x[j],layout$x[j]+1),c(layout$y[j],layout$y[j]),col=rgb(layout$V4[j]*0.9,layout$V4[j]*0.9,layout$V4[j]*0.9))
 }
 title(main=paste("Timepoint: ",virus_levels$time[i]," minutes."))
-points(people$x[which(people$time==virus_levels$time[i])]+0.5,people$y[which(people$time==virus_levels$time[i])]+0.5,pch=people$status[which(people$time==virus_levels$time[i])],cex=10/gridsize_y,col=c('red','blue')[people$masked+1])
+#points(people$x[which(people$time==virus_levels$time[i])]+0.5,people$y[which(people$time==virus_levels$time[i])]+0.5,pch=people$status[which(people$time==virus_levels$time[i])],cex=10/gridsize_y,col=c('red','blue')[people$masked+1])
+points(people$x[which(people$time==virus_levels$time[i])]+0.5,people$y[which(people$time==virus_levels$time[i])]+0.5,pch=8*people$masked[which(people$time==virus_levels$time[i])]+1,cex=20/gridsize_y,col=c('green','orange','red','blue')[people$status[which(people$time==virus_levels$time[i])]+1])
 dev.off()
 }
 }
@@ -62,7 +63,7 @@ dev.off()
 pngfiles=sprintf("frame%03d.png",1:dim(viruslevels)[1])
 makeplot_raster()
 
-gifski(pngfiles,"raster.gif",loop=FALSE,delay=0.5)
+gifski(pngfiles[1:10000],"raster.gif",loop=FALSE,delay=0.01)
 
 #plotting virus levels over time
 virus_levels$Total_virus=rowSums(virus_levels[,3:dim(virus_levels)[2]])
