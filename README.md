@@ -1,4 +1,4 @@
-# COVID-ADAPT
+# COVID-ADAPT v.0.1.0
 
 COVID-ADAPT is an individual-based stochastic discrete-space simulation model of airborne disease transmission and infection control practices. It was inspired by the COVID-19 pandemic in 2020-21, but can be used to model any disease transmitted by airborne droplets between hosts with a Susceptible-Exposed-Infectious-Recovered transmission cycle. 
 
