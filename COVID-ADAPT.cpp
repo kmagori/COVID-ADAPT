@@ -228,6 +228,7 @@ int main()
     fstream fin;
     string example;
     vector<string> RoomIDs; 
+    int something;
    
 
     record.open("virus_levels.csv");
