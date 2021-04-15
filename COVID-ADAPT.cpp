@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <vector>
 #include <algorithm>
+#include <map>
 using namespace std;
 
 class Person
@@ -124,25 +125,102 @@ class Room
     int Number_cells;
 };
 
+//fill maps with all the user settings
+void initSettings(std::map<std::string, int> &intSettings, std::map<std::string, double> &doubleSettings){
+    // map the names of every setting to a default value
+    // some settings are decimal and some are integer
+    doubleSettings= {
+        {"steepness_exposure", 1},
+        {"steepness_infectious", 1},
+        {"midpoint_infectious", 7200},
+        {"steepness_recovery", 1},
+        {"midpoint_recovery", 14400},
+        {"virus_decay_rate", 0.001}
+    };
+
+    intSettings= {
+        {"number_infectious", 4},
+        {"number_susceptible", 6},
+        {"gridsize_x", 43},
+        {"gridsize_y", 43},
+        {"max_time", 30000},
+        {"midpoint_exposure", 50}
+    };
+}
+
+//Replace the default values in the maps with settings from the JSON file which are set by the user through the GUI
+void configSettings(std::map<std::string, int> &intSettings, std::map<std::string, double> &doubleSettings){
+    std::ifstream config("source/settings.json");
+
+    // if a setting appears in the settings.json file, it will be overwritten in the map
+    std::string variable, value;
+
+    std::getline(config, variable); //get past first line of JSON file
+
+    while(std::getline(config, variable, ':')){
+        
+        if(variable != "}"){ //ignore last line of JSON file
+            std::getline(config, value);
+            //clean the data
+            value.erase(value.begin()); //remove whitespace
+            value.erase(value.begin()); //remove quote
+            if(value[value.length() - 1] == ','){ //remove comma from every line but the last
+                value.erase(value.end() - 1);
+            }
+            value.erase(value.end() - 1); //remove quote
+
+            variable.erase(variable.begin()); //remove quote
+            variable.erase(variable.end() - 1); //remove quote
+
+            // determine if the setting should be a double or an int
+            if(doubleSettings.count(variable) == 1){
+                doubleSettings[variable] = std::stod(value);
+            }
+            else if(intSettings.count(variable) == 1){
+                intSettings[variable] = std::stoi(value);
+            }
+        }
+    }
+}
+
 int main()
 {
+    //////////////////////////////////////////////////////////////////////////////////
+    //read in the settings from the JSON file which is written in the python UI script
+    //////////////////////////////////////////////////////////////////////////////////
+
+    //create maps to hold integer and decimal settings
+    std::map<std::string, int> intSettings;
+    std::map<std::string, double> doubleSettings;
+
+    //fill the maps with the settings
+    initSettings(intSettings, doubleSettings);
+
+    //set values of settings based on settings.JSON
+    configSettings(intSettings, doubleSettings);
+
+    //set variables based on the values in the maps
+    int number_infectious = intSettings["number_infectious"];
+    int number_susceptible = intSettings["number_susceptible"];
+    int gridsize_x = intSettings["gridsize_x"];
+    int gridsize_y = intSettings["gridsize_y"];
+    int max_time = intSettings["max_time"];
+    int midpoint_exposure = intSettings["midpoint_exposure"];
+
+    double steepness_exposure = doubleSettings["steepness_exposure"];
+    double steepness_infectious = doubleSettings["steepness_infectious"];
+    double midpoint_infectious = doubleSettings["midpoint_infectious"];
+    double steepness_recovery = doubleSettings["steepness_recovery"];
+    double midpoint_recovery = doubleSettings["midpoint_recovery"];
+    double virus_decay_rate = doubleSettings["virus_decay_rate"];
+    //////////////////////////////////////////////////////////////////////////////////
+
+
     //Declare an object
     srand ((unsigned) time(NULL));
-    int number_infectious=4;
-    int number_susceptible=6;
     Person person[number_infectious+number_susceptible];
-    int gridsize_x=43;
-    int gridsize_y=43;
     Place places[gridsize_x*gridsize_y];
     double simtime,sum_prob;
-    int max_time=30000;
-    double steepness_exposure=20;
-    int midpoint_exposure=0.75;
-    double steepness_infectious=1;
-    double midpoint_infectious=7200;
-    double steepness_recovery=1;
-    double midpoint_recovery=14400;
-    double virus_decay_rate=0.001;
     double current_sum;
     int PlaceBefore,PlaceAfter;
     double quanta_rate=14.28;
