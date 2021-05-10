@@ -6,9 +6,11 @@
 "midpoint_recovery": "14400",
 "virus_decay_rate": "0.001",
 "number_infectious": "4",
-"number_susceptible": "6",
+"number_susceptible_vaccinated": "6",
+"number_susceptible_unvaccinated": "6",
 "gridsize_x": "43",
 "gridsize_y": "43",
 "max_time": "30000",
-"midpoint_exposure": "50"
+"midpoint_exposure": "50",
+"vaccine_efficacy": "0.75"
 }

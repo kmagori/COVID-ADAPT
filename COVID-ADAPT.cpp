@@ -135,12 +135,17 @@ void initSettings(std::map<std::string, int> &intSettings, std::map<std::string,
         {"midpoint_infectious", 7200},
         {"steepness_recovery", 1},
         {"midpoint_recovery", 14400},
-        {"virus_decay_rate", 0.001}
+        {"virus_decay_rate", 0.001},
+
+        {"vaccine_efficacy", 0.5}
     };
 
     intSettings= {
         {"number_infectious", 4},
-        {"number_susceptible", 6},
+
+        {"number_susceptible_vaccinated", 6},
+        {"number_susceptible_unvaccinated", 6},
+
         {"gridsize_x", 43},
         {"gridsize_y", 43},
         {"max_time", 30000},
@@ -201,7 +206,8 @@ int main()
 
     //set variables based on the values in the maps
     int number_infectious = intSettings["number_infectious"];
-    int number_susceptible = intSettings["number_susceptible"];
+    int number_susceptible_vaccinated = intSettings["number_susceptible_vaccinated"];
+    int number_susceptible_unvaccinated = intSettings["number_susceptible_unvaccinated"];
     int gridsize_x = intSettings["gridsize_x"];
     int gridsize_y = intSettings["gridsize_y"];
     int max_time = intSettings["max_time"];
@@ -213,6 +219,7 @@ int main()
     double steepness_recovery = doubleSettings["steepness_recovery"];
     double midpoint_recovery = doubleSettings["midpoint_recovery"];
     double virus_decay_rate = doubleSettings["virus_decay_rate"];
+    double vaccine_efficacy = doubleSettings["vaccine_efficacy"];
     //////////////////////////////////////////////////////////////////////////////////
 
 
