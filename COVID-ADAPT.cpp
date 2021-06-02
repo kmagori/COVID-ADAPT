@@ -136,16 +136,16 @@ void initSettings(std::map<std::string, int> &intSettings, std::map<std::string,
         {"steepness_recovery", 1},
         {"midpoint_recovery", 14400},
         {"virus_decay_rate", 0.001},
-
-        {"vaccine_efficacy", 0.5}
+        {"vaccine_efficacy",0.75}
     };
 
     intSettings= {
-        {"number_infectious", 4},
-
-        {"number_susceptible_vaccinated", 6},
-        {"number_susceptible_unvaccinated", 6},
-
+        {"number_infectious_unmasked", 4},
+        {"number_susceptible_vaccinated_unmasked", 6},
+        {"number_susceptible_unvaccinated_unmasked",6},
+        {"number_infectious_masked", 0},
+        {"number_susceptible_vaccinated_masked", 0},
+        {"number_susceptible_unvaccinated_masked",0},
         {"gridsize_x", 43},
         {"gridsize_y", 43},
         {"max_time", 30000},
@@ -155,7 +155,7 @@ void initSettings(std::map<std::string, int> &intSettings, std::map<std::string,
 
 //Replace the default values in the maps with settings from the JSON file which are set by the user through the GUI
 void configSettings(std::map<std::string, int> &intSettings, std::map<std::string, double> &doubleSettings){
-    std::ifstream config("source/settings.json");
+    std::ifstream config("settings.json");
 
     // if a setting appears in the settings.json file, it will be overwritten in the map
     std::string variable, value;
@@ -205,9 +205,12 @@ int main()
     configSettings(intSettings, doubleSettings);
 
     //set variables based on the values in the maps
-    int number_infectious = intSettings["number_infectious"];
-    int number_susceptible_vaccinated = intSettings["number_susceptible_vaccinated"];
-    int number_susceptible_unvaccinated = intSettings["number_susceptible_unvaccinated"];
+    int number_infectious_unmasked = intSettings["number_infectious_unmasked"];
+    int number_susceptible_vaccinated_unmasked = intSettings["number_susceptible_vaccinated_unmasked"];
+    int number_susceptible_unvaccinated_unmasked = intSettings["number_susceptible_unvaccinated_unmasked"];
+    int number_infectious_masked = intSettings["number_infectious_masked"];
+    int number_susceptible_vaccinated_masked = intSettings["number_susceptible_vaccinated_masked"];
+    int number_susceptible_unvaccinated_masked = intSettings["number_susceptible_unvaccinated_masked"];
     int gridsize_x = intSettings["gridsize_x"];
     int gridsize_y = intSettings["gridsize_y"];
     int max_time = intSettings["max_time"];
@@ -225,7 +228,8 @@ int main()
 
     //Declare an object
     srand ((unsigned) time(NULL));
-    Person person[number_infectious+number_susceptible];
+    int total_number_people=number_infectious_unmasked+number_susceptible_vaccinated_unmasked+number_susceptible_unvaccinated_unmasked+number_infectious_masked+number_susceptible_vaccinated_masked+number_susceptible_unvaccinated_masked;
+    Person person[total_number_people];
     Place places[gridsize_x*gridsize_y];
     double simtime,sum_prob;
     double current_sum;
@@ -316,10 +320,11 @@ int main()
     
 
     record.open("people.csv");
-    record << fixed << setprecision(9) << "time, person_id, position, status, masked";
+    record << fixed << setprecision(9) << "time, person_id, position, status, masked, vaccinated";
     record.close();
     //accessing data member
-    for (int i=0;i<number_infectious;i++)
+    //making infectious people
+    for (int i=0;i<number_infectious_unmasked;i++)
     {
     person[i].identifier="Toga";
     
@@ -356,7 +361,44 @@ int main()
     person[i].status=2;
     }
 
-    for (int i=number_infectious;i<(number_infectious+number_susceptible);i++)
+    //making vaccinated susceptible people
+    for (int i=number_infectious_unmasked;i<(number_infectious_unmasked+number_susceptible_vaccinated_unmasked);i++)
+    {
+    person[i].identifier="Eri";
+    do
+    {
+        person[i].location=floor(((float) rand()/RAND_MAX)*(gridsize_x*gridsize_y-1));
+        person[i].xposition=(person[i].location % gridsize_x) + 1;
+        person[i].yposition=((int) person[i].location/gridsize_x) + 1;
+    }
+    while (places[person[i].location].Occupied||(person[i].xposition<10&&person[i].yposition<10)||(person[i].xposition<10&&person[i].yposition>33)||(person[i].xposition>33&&person[i].yposition<10)||(person[i].xposition>33&&person[i].yposition>33)||(person[i].xposition>12&&person[i].xposition<33&&person[i].yposition>12&&person[i].yposition<33));
+    places[person[i].location].Occupied=true;
+    places[person[i].location].person_in_there=i;
+
+    person[i].susceptible=true;
+    person[i].exposed=false;
+    person[i].infected=false;
+    person[i].infectious=false;
+    person[i].recovered=false;
+    person[i].masked=false;
+    person[i].vaccinated=true;
+    person[i].age=7;
+    person[i].movement_rate=0.1;
+    person[i].exposure_probability=0;
+    person[i].exposure_rate=0.1;
+    person[i].sum_prob=0;
+    person[i].exposure_time=-9999;
+    person[i].infectious_probability=0;
+    person[i].infectious_rate=0.1;
+    person[i].infectious_time=-9999;
+    person[i].recovery_probability=0;
+    person[i].recovery_rate=0.1;
+    person[i].recovery_time=-9999;
+    person[i].status=0;
+    }
+
+    //making susceptible unvaccinated people
+    for (int i=(number_infectious_unmasked+number_susceptible_vaccinated_unmasked);i<(number_infectious_unmasked+number_susceptible_vaccinated_unmasked+number_susceptible_unvaccinated_unmasked);i++)
     {
     person[i].identifier="Eri";
     do
@@ -390,9 +432,116 @@ int main()
     person[i].recovery_time=-9999;
     person[i].status=0;
     }
+    //masked infectious people
+    for (int i=(number_infectious_unmasked+number_susceptible_vaccinated_unmasked+number_susceptible_unvaccinated_unmasked);i<(number_infectious_unmasked+number_susceptible_vaccinated_unmasked+number_susceptible_unvaccinated_unmasked+number_infectious_masked);i++)
+    {
+    person[i].identifier="Toga";
+    
+    
+    do
+    {
+    person[i].location=floor(((float) rand()/RAND_MAX)*(gridsize_x*gridsize_y-1));
+    person[i].xposition=(person[i].location % gridsize_x) + 1 ;
+    person[i].yposition=((int) person[i].location/gridsize_x) + 1;
+    }
+    while (places[person[i].location].Occupied||(person[i].xposition<10&&person[i].yposition<10)||(person[i].xposition<10&&person[i].yposition>33)||(person[i].xposition>33&&person[i].yposition<10)||(person[i].xposition>33&&person[i].yposition>33)||(person[i].xposition>12&&person[i].xposition<33&&person[i].yposition>12&&person[i].yposition<33));
+    places[person[i].location].Occupied=true;
+    places[person[i].location].person_in_there=i;
 
-    //making only 1 infectious person unmasked
-    person[0].masked=false;
+    person[i].susceptible=false;
+    person[i].exposed=false;
+    person[i].infected=false;
+    person[i].infectious=true;
+    person[i].recovered=false;
+    person[i].masked=true;
+    person[i].vaccinated=false;
+    person[i].age=16;
+    person[i].movement_rate=0.1;
+    person[i].exposure_probability=0;
+    person[i].exposure_rate=0.1;
+    person[i].sum_prob=0;
+    person[i].exposure_time=-9999;
+    person[i].infectious_probability=0;
+    person[i].infectious_rate=0.1;
+    person[i].infectious_time=0;
+    person[i].recovery_probability=0;
+    person[i].recovery_rate=0.1;
+    person[i].recovery_time=-9999;
+    person[i].status=2;
+    }
+
+    //making vaccinated susceptible masked people
+    for (int i=(number_infectious_unmasked+number_susceptible_vaccinated_unmasked+number_susceptible_unvaccinated_unmasked+number_infectious_masked);i<(number_infectious_unmasked+number_susceptible_vaccinated_unmasked+number_susceptible_unvaccinated_unmasked+number_infectious_masked+number_susceptible_vaccinated_masked);i++)
+    {
+    person[i].identifier="Eri";
+    do
+    {
+        person[i].location=floor(((float) rand()/RAND_MAX)*(gridsize_x*gridsize_y-1));
+        person[i].xposition=(person[i].location % gridsize_x) + 1;
+        person[i].yposition=((int) person[i].location/gridsize_x) + 1;
+    }
+    while (places[person[i].location].Occupied||(person[i].xposition<10&&person[i].yposition<10)||(person[i].xposition<10&&person[i].yposition>33)||(person[i].xposition>33&&person[i].yposition<10)||(person[i].xposition>33&&person[i].yposition>33)||(person[i].xposition>12&&person[i].xposition<33&&person[i].yposition>12&&person[i].yposition<33));
+    places[person[i].location].Occupied=true;
+    places[person[i].location].person_in_there=i;
+
+    person[i].susceptible=true;
+    person[i].exposed=false;
+    person[i].infected=false;
+    person[i].infectious=false;
+    person[i].recovered=false;
+    person[i].masked=true;
+    person[i].vaccinated=true;
+    person[i].age=7;
+    person[i].movement_rate=0.1;
+    person[i].exposure_probability=0;
+    person[i].exposure_rate=0.1;
+    person[i].sum_prob=0;
+    person[i].exposure_time=-9999;
+    person[i].infectious_probability=0;
+    person[i].infectious_rate=0.1;
+    person[i].infectious_time=-9999;
+    person[i].recovery_probability=0;
+    person[i].recovery_rate=0.1;
+    person[i].recovery_time=-9999;
+    person[i].status=0;
+    }
+
+    //making susceptible masked unvaccinated people
+    for (int i=(number_infectious_unmasked+number_susceptible_vaccinated_unmasked+number_susceptible_unvaccinated_unmasked+number_infectious_masked+number_susceptible_vaccinated_masked);i<(total_number_people);i++)
+    {
+    person[i].identifier="Eri";
+    do
+    {
+        person[i].location=floor(((float) rand()/RAND_MAX)*(gridsize_x*gridsize_y-1));
+        person[i].xposition=(person[i].location % gridsize_x) + 1;
+        person[i].yposition=((int) person[i].location/gridsize_x) + 1;
+    }
+    while (places[person[i].location].Occupied||(person[i].xposition<10&&person[i].yposition<10)||(person[i].xposition<10&&person[i].yposition>33)||(person[i].xposition>33&&person[i].yposition<10)||(person[i].xposition>33&&person[i].yposition>33)||(person[i].xposition>12&&person[i].xposition<33&&person[i].yposition>12&&person[i].yposition<33));
+    places[person[i].location].Occupied=true;
+    places[person[i].location].person_in_there=i;
+
+    person[i].susceptible=true;
+    person[i].exposed=false;
+    person[i].infected=false;
+    person[i].infectious=false;
+    person[i].recovered=false;
+    person[i].masked=true;
+    person[i].vaccinated=false;
+    person[i].age=7;
+    person[i].movement_rate=0.1;
+    person[i].exposure_probability=0;
+    person[i].exposure_rate=0.1;
+    person[i].sum_prob=0;
+    person[i].exposure_time=-9999;
+    person[i].infectious_probability=0;
+    person[i].infectious_rate=0.1;
+    person[i].infectious_time=-9999;
+    person[i].recovery_probability=0;
+    person[i].recovery_rate=0.1;
+    person[i].recovery_time=-9999;
+    person[i].status=0;
+    }
+
 
     //accessing member function
     //person1.printname();
@@ -406,24 +555,26 @@ int main()
     {
 
         //zeroing out the probability of becoming exposed
-        for (int i=0;i<(number_infectious+number_susceptible);i++) person[i].exposure_probability=0;
+        for (int i=0;i<(total_number_people);i++) person[i].exposure_probability=0;
 
         //calculating probability of becoming exposed
-        for (int i=0;i<(number_infectious+number_susceptible);i++) {if (person[i].susceptible) if(places[person[i].location].Virus_level>0) person[i].exposure_probability=1/(1+exp(-steepness_exposure*(places[person[i].location].Virus_level-midpoint_exposure)));}
+        for (int i=0;i<(total_number_people);i++) {if (person[i].susceptible) if(places[person[i].location].Virus_level>0) person[i].exposure_probability=1/(1+exp(-steepness_exposure*(places[person[i].location].Virus_level-midpoint_exposure)));}
 
         //multiplying exposure probability with mask modifier
-        for (int i=0;i<(number_infectious+number_susceptible);i++) {if (person[i].masked) person[i].exposure_probability=0.05*person[i].exposure_probability;}
+        for (int i=0;i<(total_number_people);i++) {if (person[i].masked) person[i].exposure_probability=0.05*person[i].exposure_probability;}
 
+        //multiplying exposure probability with vaccine efficacy
+        for (int i=0;i<(total_number_people);i++) {if (person[i].vaccinated) person[i].exposure_probability=(1-vaccine_efficacy)*person[i].exposure_probability;}
 
         //calculating probability of becoming infectious
-        for (int i=0;i<(number_infectious+number_susceptible);i++) {
+        for (int i=0;i<(total_number_people);i++) {
             if (person[i].exposed) {
             person[i].infectious_probability=1/(1+exp(-steepness_infectious*((simtime-person[i].exposure_time)-midpoint_infectious)));
             }
         }
 
         //calculating probability of recovering
-        for (int i=0;i<(number_infectious+number_susceptible);i++) {
+        for (int i=0;i<(total_number_people);i++) {
             if (person[i].infectious) {
             person[i].recovery_probability=1/(1+exp(-steepness_recovery*((simtime-person[i].infectious_time)-midpoint_recovery)));
             }
@@ -431,11 +582,11 @@ int main()
 
         //Gillespie algorithm
         //calculating sum of probabilities across persons, with movement rate, exposure rate
-        for (int i=0;i<(number_infectious+number_susceptible);i++) {person[i].sum_prob=person[i].movement_rate+person[i].exposure_rate*person[i].exposure_probability+person[i].infectious_rate*person[i].infectious_probability+person[i].recovery_rate*person[i].recovery_probability;}
+        for (int i=0;i<(total_number_people);i++) {person[i].sum_prob=person[i].movement_rate+person[i].exposure_rate*person[i].exposure_probability+person[i].infectious_rate*person[i].infectious_probability+person[i].recovery_rate*person[i].recovery_probability;}
 
         //calculating sum of probabilities overall
         sum_prob=0;
-        for (int i=0;i<(number_infectious+number_susceptible);i++) {sum_prob=sum_prob+person[i].sum_prob;}
+        for (int i=0;i<(total_number_people);i++) {sum_prob=sum_prob+person[i].sum_prob;}
 
     //get the sojourn time
     
@@ -491,7 +642,7 @@ int main()
     //movement
     //lets see who will do something
     v1=sum_prob*((float) rand()/RAND_MAX) ;
-    current_person=number_infectious+number_susceptible;
+    current_person=total_number_people;
     current_sum=sum_prob;
     do
     {
@@ -570,14 +721,14 @@ int main()
 
     record.open("people.csv",std::fstream::app);
 
-    for (int i=0;i<(number_infectious+number_susceptible);i++)
+    for (int i=0;i<(total_number_people);i++)
     {
         int j=-1;
         do
         {
             j++;
         }while ((places[j].xposition!=person[i].xposition)||(places[j].yposition!=person[i].yposition));
-        record << "\n" << simtime << "," << i << "," << j << "," << person[i].status << "," << person[i].masked;
+        record << "\n" << simtime << "," << i << "," << j << "," << person[i].status << "," << person[i].masked << "," << person[i].vaccinated;
     }
     record.close();
 
